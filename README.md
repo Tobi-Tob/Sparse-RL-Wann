@@ -1,3 +1,5 @@
+This repository contains the code used to produce the results in the original [WANN paper](https://github.com/google/brain-tokyo-workshop/).
+
 # Weight Agnostic Neural Networks
 
 Weight Agnostic Networks: network topologies evolved to work with a variety of shared weights. Adapted from the [prettyNEAT](../prettyNEAT) package. This repository represents a snapshot of the code used to produce the results in the original [WANN paper](https://weightagnostic.github.io/). The goal was to create minimal rather than general code for clearer understanding. If you are interested in a more extendable and general implementation for your own experiments, we recommend using the [WANN fork](../prettyNEAT_WANN) of the [prettyNEAT](../prettyNEAT) package.

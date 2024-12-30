@@ -229,8 +229,11 @@ def mpi_fork(n):
       OMP_NUM_THREADS="1",
       IN_MPI="1"
     )
-    print( ["mpirun", "-np", str(n), sys.executable] + sys.argv)
-    subprocess.check_call(["mpirun", "-np", str(n), sys.executable] +['-u']+ sys.argv, env=env)
+    # print( ["mpirun", "-np", str(n), sys.executable] + sys.argv)
+    # subprocess.check_call(["mpirun", "-np", str(n), sys.executable] +['-u']+ sys.argv, env=env)
+    # TL: Replace 'mpirun' with 'mpiexec' for compatibility with Microsoft MPI
+    print(["mpiexec", "-np", str(n), sys.executable] + sys.argv)
+    subprocess.check_call(["mpiexec", "-np", str(n), sys.executable] + ['-u'] + sys.argv, env=env)
     return "parent"
   else:
     global nWorker, rank

@@ -1,4 +1,3 @@
-
 # Standard libraries
 import numpy as np
 import math
@@ -13,18 +12,18 @@ from .task import Task
 from .ind import Ind
 
 
-class Wann():
-  """WANN main class. Evolves population given fitness values of individuals.
-  """
-  def __init__(self, hyp):
-    """Intialize WANN algorithm with hyperparameters
+class Wann:
+    """WANN main class. Evolves population given fitness values of individuals."""
+
+    def __init__(self, hyp):
+        """Intialize WANN algorithm with hyperparameters
     Args:
       hyp - (dict) - algorithm hyperparameters
 
     Attributes:
       p       - (dict)     - algorithm hyperparameters (see p/hypkey.txt)
       pop     - (Ind)      - Current population
-      species - (Species)  - Current species   
+      species - (Species)  - Current species (In WANN we don't use species for simplicity)
       innov   - (np_array) - innovation record
                 [5 X nUniqueGenes]
                 [0,:] == Innovation Number
@@ -34,120 +33,117 @@ class Wann():
                 [4,:] == Generation evolved
       gen     - (int)      - Current generation
     """
-    self.p = hyp       # Hyperparameters
-    self.pop = []      # Current population
-    self.species = []  # Current species   
-    self.innov = []    # Innovation number (gene Id)
-    self.gen = 0
+        self.p = hyp  # Hyperparameters
+        self.pop = []  # Current population
+        self.species = []  # Current species in the population. Species are groups of
+        # individuals that share similar characteristics, which helps in maintaining
+        # diversity in the population during the evolutionary process.
+        self.innov = []  # List that keeps track of the innovation numbers (gene IDs)
+        # for the structure of the network. It records the history of gene innovations,
+        # which is needed for managing the evolution of the network structure over generations.
+        self.gen = 0
 
-  ''' Subfunctions '''
-  from ._variation import evolvePop, recombine, crossover,\
-                          mutAddNode, mutAddConn, topoMutate
-  from ._speciate  import Species, speciate # Population container
+    ''' Subfunctions '''
+    from ._variation import evolvePop, recombine, crossover, \
+        mutAddNode, mutAddConn, topoMutate
+    from ._speciate import Species, speciate  # Population container
 
+    def ask(self):
+        """Is responsible for generating a new population of individuals"""
+        if len(self.pop) == 0:
+            self.initPop()  # Initialize population
+        else:
+            self.probMoo()  # Rank population according to objectives (Pareto dominance)
+            self.speciate()  # Divide population into species
+            self.evolvePop()  # Create child population by mutation and crossover
 
-  def ask(self):
-    """Returns newly evolved population
-    """
-    if len(self.pop) == 0:
-      self.initPop()      # Initialize population
-    else:
-      self.probMoo()      # Rank population according to objectives
-      self.speciate()     # Divide population into species
-      self.evolvePop()    # Create child population 
-      
-    return self.pop       # Send child population for evaluation
+        return self.pop  # Send child population for evaluation
 
-
-  def tell(self,reward):
-    """Assigns fitness to current population
+    def tell(self, reward):
+        """Assigns fitness to current population. The method iterates over the reward array and
+        updates the fitness, fitMax, and nConn attributes of each individual in the population.
 
     Args:
       reward - (np_array) - fitness value of each individual
                [nInd X 1]
 
     """
-    for i in range(np.shape(reward)[0]):
-      self.pop[i].fitness = np.mean(reward[i,:])
-      self.pop[i].fitMax  = np.max( reward[i,:])
-      self.pop[i].nConn   = self.pop[i].nConn
-  
+        for i in range(np.shape(reward)[0]):
+            self.pop[i].fitness = np.mean(reward[i, :])
+            self.pop[i].fitMax = np.max(reward[i, :])
+            self.pop[i].nConn = self.pop[i].nConn
 
-  def initPop(self):
-    """Initialize population with a list of random individuals
-    """
-    ##  Create base individual
-    p = self.p # readability
-    
-    # - Create Nodes -
-    nodeId = np.arange(0,p['ann_nInput']+ p['ann_nOutput']+1,1)
-    node = np.empty((3,len(nodeId)))
-    node[0,:] = nodeId
-    
-    # Node types: [1:input, 2:hidden, 3:bias, 4:output]
-    node[1,0]             = 4 # Bias
-    node[1,1:p['ann_nInput']+1] = 1 # Input Nodes
-    node[1,(p['ann_nInput']+1):\
-           (p['ann_nInput']+p['ann_nOutput']+1)]  = 2 # Output Nodes
-    
-    # Node Activations
-    node[2,:] = p['ann_initAct']
+    def initPop(self):
+        """Initialize population with a list of random individuals"""
+        ##  Create base individual
+        p = self.p  # readability
 
-    # - Create Conns -
-    nConn = (p['ann_nInput']+1) * p['ann_nOutput']
-    ins   = np.arange(0,p['ann_nInput']+1,1)            # Input and Bias Ids
-    outs  = (p['ann_nInput']+1) + np.arange(0,p['ann_nOutput']) # Output Ids
-    
-    conn = np.empty((5,nConn,))
-    conn[0,:] = np.arange(0,nConn,1)      # Connection Id
-    conn[1,:] = np.tile(ins, len(outs))   # Source Nodes
-    conn[2,:] = np.repeat(outs,len(ins) ) # Destination Nodes
-    conn[3,:] = np.nan                    # Weight Values
-    conn[4,:] = 1                         # Enabled?
-        
-    # Create population of individuals (for WANN weight value doesn't matter)
-    pop = []
-    for i in range(p['popSize']):
-        newInd = Ind(conn, node)
-        newInd.conn[3,:] = 1 #(2*(np.random.rand(1,nConn)-0.5))*p['ann_absWCap']
-        newInd.conn[4,:] = np.random.rand(1,nConn) < p['prob_initEnable']
-        newInd.express()
-        newInd.birth = 0
-        pop.append(copy.deepcopy(newInd))  
+        # - Create Nodes -
+        nodeId = np.arange(0, p['ann_nInput'] + p['ann_nOutput'] + 1, 1)
+        node = np.empty((3, len(nodeId)))
+        node[0, :] = nodeId
 
-    # - Create Innovation Record -
-    innov = np.zeros([5,nConn])
-    innov[0:3,:] = pop[0].conn[0:3,:]
-    innov[3,:] = -1
-    
-    self.pop = pop
-    self.innov = innov
+        # Node types: [1:input, 2:hidden, 3:bias, 4:output]
+        node[1, 0] = 4  # Bias
+        node[1, 1:p['ann_nInput'] + 1] = 1  # Input Nodes
+        node[1, (p['ann_nInput'] + 1): (p['ann_nInput'] + p['ann_nOutput'] + 1)] = 2  # Output Nodes
 
+        # Node Activations
+        node[2, :] = p['ann_initAct']
 
-  def probMoo(self):
-    """Rank population according to Pareto dominance.
-    """
-    # Compile objectives
-    meanFit = np.asarray([ind.fitness for ind in self.pop])
-    maxFit  = np.asarray([ind.fitMax  for ind in self.pop])
-    nConns  = np.asarray([ind.nConn   for ind in self.pop])
-    nConns[nConns==0] = 1 # No conns is always pareto optimal (but boring)
-    objVals = np.c_[meanFit,maxFit,1/nConns] # Maximize
+        # - Create Conns -
+        nConn = (p['ann_nInput'] + 1) * p['ann_nOutput']
+        ins = np.arange(0, p['ann_nInput'] + 1, 1)  # Input and Bias Ids
+        outs = (p['ann_nInput'] + 1) + np.arange(0, p['ann_nOutput'])  # Output Ids
 
-    # Alternate second objective
-    if self.p['alg_probMoo'] < np.random.rand():
-      rank = nsga_sort(objVals[:,[0,1]])
-    else:
-      rank = nsga_sort(objVals[:,[0,2]])
+        conn = np.empty((5, nConn,))
+        conn[0, :] = np.arange(0, nConn, 1)  # Connection Id
+        conn[1, :] = np.tile(ins, len(outs))  # Source Nodes
+        conn[2, :] = np.repeat(outs, len(ins))  # Destination Nodes
+        conn[3, :] = np.nan  # Weight Values
+        conn[4, :] = 1  # Enabled?
 
-    # Assign ranks
-    for i in range(len(self.pop)):
-      self.pop[i].rank = rank[i]
- 
+        # Create population of individuals (for WANN weight value doesn't matter)
+        pop = []
+        for i in range(p['popSize']):
+            newInd = Ind(conn, node)
+            newInd.conn[3, :] = 1  # (2*(np.random.rand(1,nConn)-0.5))*p['ann_absWCap']
+            newInd.conn[4, :] = np.random.rand(1, nConn) < p['prob_initEnable']
+            newInd.express()
+            newInd.birth = 0
+            pop.append(copy.deepcopy(newInd))
+
+            # - Create Innovation Record -
+        innov = np.zeros([5, nConn])
+        innov[0:3, :] = pop[0].conn[0:3, :]
+        innov[3, :] = -1
+
+        self.pop = pop
+        self.innov = innov
+
+    def probMoo(self):
+        """Rank population according to Pareto dominance."""
+        # Compile objectives
+        meanFit = np.asarray([ind.fitness for ind in self.pop])
+        maxFit = np.asarray([ind.fitMax for ind in self.pop])
+        nConns = np.asarray([ind.nConn for ind in self.pop])
+        nConns[nConns == 0] = 1  # No conns is always pareto optimal (but boring)
+        objVals = np.c_[meanFit, maxFit, 1 / nConns]  # Maximize
+
+        # Alternate second objective
+        if self.p['alg_probMoo'] < np.random.rand():
+            rank = nsga_sort(objVals[:, [0, 1]])
+        else:
+            rank = nsga_sort(objVals[:, [0, 2]])
+
+        # Assign ranks
+        for i in range(len(self.pop)):
+            self.pop[i].rank = rank[i]
+
 
 # -- Hyperparameter plumbing --------------------------------------------- -- #
 def loadHyp(pFileName, printHyp=False):
-  """Loads hyperparameters from .json file
+    """Loads hyperparameters from .json file
   Args:
       pFileName - (string) - file name of hyperparameter file
       printHyp  - (bool)   - print contents of hyperparameter file to terminal?
@@ -155,39 +151,39 @@ def loadHyp(pFileName, printHyp=False):
   Note: see p/hypkey.txt for detailed hyperparameter description
   """
 
-  # Load Parameters from disk
-  with open(pFileName) as data_file:    
-    hyp = json.load(data_file)
-
-  # Task hyper parameters
-  task = Task(games[hyp['task']],paramOnly=True)
-  hyp['ann_nInput']   = task.nInput
-  hyp['ann_nOutput']  = task.nOutput
-  hyp['ann_initAct']  = task.activations[0]
-  hyp['ann_actRange'] = task.actRange
-
-  if 'alg_act' in hyp:
-    hyp['ann_actRange'] = np.full_like(task.actRange,hyp['alg_act'])
-
-  if printHyp is True:
-    print(json.dumps(hyp, indent=4, sort_keys=True))
-  return hyp
-
-def updateHyp(hyp,pFileName=None):
-  """Overwrites default hyperparameters with those from second .json file
-  """
-  print('\t*** Running with hyperparameters: ', pFileName, '\t***')
-  ''' Overwrites selected parameters those from file '''
-  if pFileName != None:
-    with open(pFileName) as data_file:    
-      update = json.load(data_file)
-
-    hyp.update(update)
+    # Load Parameters from disk
+    with open(pFileName) as data_file:
+        hyp = json.load(data_file)
 
     # Task hyper parameters
-    task = Task(games[hyp['task']],paramOnly=True)
-    hyp['ann_nInput']   = task.nInput
-    hyp['ann_nOutput']  = task.nOutput
-    hyp['ann_initAct']  = task.activations[0]
+    task = Task(games[hyp['task']], paramOnly=True)
+    hyp['ann_nInput'] = task.nInput
+    hyp['ann_nOutput'] = task.nOutput
+    hyp['ann_initAct'] = task.activations[0]
     hyp['ann_actRange'] = task.actRange
 
+    if 'alg_act' in hyp:
+        hyp['ann_actRange'] = np.full_like(task.actRange, hyp['alg_act'])
+
+    if printHyp is True:
+        print(json.dumps(hyp, indent=4, sort_keys=True))
+    return hyp
+
+
+def updateHyp(hyp, pFileName=None):
+    """Overwrites default hyperparameters with those from second .json file
+  """
+    print('\t*** Running with hyperparameters: ', pFileName, '\t***')
+    ''' Overwrites selected parameters those from file '''
+    if pFileName != None:
+        with open(pFileName) as data_file:
+            update = json.load(data_file)
+
+        hyp.update(update)
+
+        # Task hyper parameters
+        task = Task(games[hyp['task']], paramOnly=True)
+        hyp['ann_nInput'] = task.nInput
+        hyp['ann_nOutput'] = task.nOutput
+        hyp['ann_initAct'] = task.activations[0]
+        hyp['ann_actRange'] = task.actRange

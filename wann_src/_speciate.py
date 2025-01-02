@@ -7,11 +7,12 @@ dump the entire population into a Species.
 """
 
 
-class Species():
-  """Species class, only contains fields: all methods belong to WANN class.
-  """
-  def __init__(self,seed):
-    """Initialize species around a seed
+class Species:
+    """Species class, only contains fields: all methods belong to WANN class.
+    """
+
+    def __init__(self, seed):
+        """Initialize species around a seed
     Args:
       seed - (Ind) - individual which anchors seed in compatibility space
 
@@ -23,21 +24,22 @@ class Species():
       lastImp    - (int)   - generations since a new best individual was found
       nOffspring - (int)   - new individuals to create this generation
     """
-    self.seed = seed      # Seed is type Ind
-    self.members = [seed] # All inds in species
-    self.bestInd = seed
-    self.bestFit = seed.fitness
-    self.lastImp = 0
-    self.nOffspring = []
+        self.seed = seed  # Seed is type Ind
+        self.members = [seed]  # All inds in species
+        self.bestInd = seed
+        self.bestFit = seed.fitness
+        self.lastImp = 0
+        self.nOffspring = []
 
-def speciate(self):  
-  """Divides population into species and assigns each a number of offspring
+
+def speciate(self):
+    """Divides population into species and assigns each a number of offspring
 
   NOTE: In WANNs we aren't using speciation -- so we just put all individuals
   in the same species, this is to just to fit things into the prettyNEAT code
   """
-  self.species = [Species(self.pop[0])]
-  self.species[0].nOffspring = self.p['popSize']
-  for ind in self.pop:
-    ind.species = 0
-  self.species[0].members = self.pop
+    self.species = [Species(self.pop[0])]
+    self.species[0].nOffspring = self.p['popSize']
+    for ind in self.pop:
+        ind.species = 0
+    self.species[0].members = self.pop

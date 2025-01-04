@@ -38,6 +38,8 @@ class Task:
         # Special needs...
         self.needsClosed = (game.env_name.startswith("CartPoleSwingUp"))
 
+        # print(f"Task: {game.env_name}, Input: {self.nInput}, Output: {self.nOutput}, Max Episode Length: {self.maxEpisodeLength}")
+
     def testInd(self, wVec, aVec, view=False, seed=-1):
         """Evaluate individual on task
     Args:

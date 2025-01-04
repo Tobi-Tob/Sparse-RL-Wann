@@ -1,7 +1,3 @@
-"""
-http://incompleteideas.net/MountainCar/MountainCar1.cp
-permalink: https://perma.cc/6Z2N-PFWC
-"""
 import math
 from typing import Optional
 
@@ -24,17 +20,6 @@ class SparseMountainCarEnv(gym.Env):
     accelerate the car to reach the goal state on top of the right hill. There are two versions
     of the mountain car domain in gym: one with discrete actions and one with continuous.
     This version is the one with discrete actions.
-
-    This MDP first appeared in [Andrew Moore's PhD Thesis (1990)](https://www.cl.cam.ac.uk/techreports/UCAM-CL-TR-209.pdf)
-
-    ```
-    @TECHREPORT{Moore90efficientmemory-based,
-        author = {Andrew William Moore},
-        title = {Efficient Memory-based Learning for Robot Control},
-        institution = {University of Cambridge},
-        year = {1990}
-    }
-    ```
 
     ### Observation Space
 
@@ -59,9 +44,9 @@ class SparseMountainCarEnv(gym.Env):
 
     Given an action, the mountain car follows the following transition dynamics:
 
-    *velocity<sub>t+1</sub> = velocity<sub>t</sub> + (action - 1) * force - cos(3 * position<sub>t</sub>) * gravity*
+    velocity_t+1 = velocity_t + (action - 1) * force - cos(3 * position_t) * gravity
 
-    *position<sub>t+1</sub> = position<sub>t</sub> + velocity<sub>t+1</sub>*
+    *position_t+1 = position_t + velocity_t+1
 
     where force = 0.001 and gravity = 0.0025. The collisions at either end are inelastic with the velocity set to 0
     upon collision with the wall. The position is clipped to the range `[-1.2, 0.6]` and
@@ -70,8 +55,8 @@ class SparseMountainCarEnv(gym.Env):
 
     ### Reward:
 
-    The goal is to reach the flag placed on top of the right hill as quickly as possible, as such the agent is
-    penalised with a reward of -1 for each timestep.
+    The goal is to reach the flag on the right hill as fast as possible. We adjust the reward function to be sparse. This means that the
+    agent receives a reward of 0 at each time step. When reaching the goal state, the agent receives a higher reward the faster it was.
 
     ### Starting State
 
@@ -83,17 +68,6 @@ class SparseMountainCarEnv(gym.Env):
     The episode ends if either of the following happens:
     1. Termination: The position of the car is greater than or equal to 0.5 (the goal position on top of the right hill)
     2. Truncation: The length of the episode is 200.
-
-
-    ### Arguments
-
-    ```
-    gym.make('MountainCar-v0')
-    ```
-
-    ### Version History
-
-    * v0: Initial versions release (1.0.0)
     """
 
     metadata = {
@@ -104,11 +78,11 @@ class SparseMountainCarEnv(gym.Env):
     def __init__(self, render_mode: Optional[str] = None, goal_velocity=0):
         self.min_position = -1.2
         self.max_position = 0.6
-        self.max_speed = 0.07
-        self.goal_position = 0.5
+        self.max_speed = 0.07  # the cars velocity is clipped to [-max_speed, max_speed]
+        self.goal_position = 0.5  # x value that the car has to reach to solve the task
         self.goal_velocity = goal_velocity
 
-        self.force = 0.001
+        self.force = 0.001  # magnitude of the acceleration applied to the car when an action is taken
         self.gravity = 0.0025
 
         self.low = np.array([self.min_position, -self.max_speed], dtype=np.float32)
@@ -122,53 +96,62 @@ class SparseMountainCarEnv(gym.Env):
         self.clock = None
         self.isopen = True
 
-        self.action_space = spaces.Discrete(3)
+        self.action_space = spaces.Discrete(3)  # 0 (accelerate left), 1 (no acceleration), 2 (accelerate right)
         self.observation_space = spaces.Box(self.low, self.high, dtype=np.float32)
+
+        self.seed()
+        self.viewer = None
+        self.state = None
+        self.steps_taken = 0  # Initialize step counter
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
     def step(self, action: int):
-        #MR: an array of actions is passed -> select first  #TODO: actions selection is not working well!
-        action = round(np.clip(action, 0.0, 2.0)[0])
+        # If the input action is a list or array, take the index of the max value as the discrete action
+        if isinstance(action, (list, np.ndarray)):
+            action = int(np.argmax(action))  # Convert to discrete action based on the highest value
+        # ensure the action is valid
         assert self.action_space.contains(
             action
-        ), f"Action {action!r} ({type(action)}) is invalid"
+        ), f"Action {action!r} ({type(action)}) is invalid, must be in {self.action_space}"
 
         position, velocity = self.state
         velocity += (action - 1) * self.force + math.cos(3 * position) * (-self.gravity)
+        #  action can be 0 (accelerate left), 1 (no acceleration), or 2 (accelerate right)
         velocity = np.clip(velocity, -self.max_speed, self.max_speed)
         position += velocity
         position = np.clip(position, self.min_position, self.max_position)
         if position == self.min_position and velocity < 0:
             velocity = 0
+        self.steps_taken += 1
 
         terminated = bool(
             position >= self.goal_position and velocity >= self.goal_velocity
         )
-        reward = -1.0
+        # Sparse reward: Only reward when terminated
+        if terminated:
+            reward = 100.0 * (0.99 ** self.steps_taken)  # Scale the reward by the time taken
+        else:
+            reward = 0.0
 
         self.state = (position, velocity)
         if self.render_mode == "human":
             self.render()
-        return np.array(self.state, dtype=np.float32), reward, terminated, False  #MR, {}
+        return np.array(self.state, dtype=np.float32), reward, terminated, {}
 
-    def reset(
-        self,
-        *,
-        seed: Optional[int] = None,
-        options: Optional[dict] = None,
-    ):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
         # Note that if you use custom reset bounds, it may lead to out-of-bound
         # state/observations.
         low, high = utils.maybe_parse_reset_bounds(options, -0.6, -0.4)
         self.state = np.array([self.np_random.uniform(low=low, high=high), 0])
+        self.steps_taken = 0
 
         if self.render_mode == "human":
             self.render()
-        return np.array(self.state, dtype=np.float32), {}
+        return np.array(self.state, dtype=np.float32)
 
     def _height(self, xs):
         return np.sin(3 * xs) * 0.45 + 0.55
@@ -176,9 +159,7 @@ class SparseMountainCarEnv(gym.Env):
     def render(self):
         if self.render_mode is None:
             gym.logger.warn(
-                "You are calling render method without specifying any render mode. "
-                "You can specify the render_mode at initialization, "
-                f'e.g. gym("{self.spec.id}", render_mode="rgb_array")'
+                f"You are calling render method without specifying any render mode. You can specify the render_mode at initialization, e.g. gym({self.spec.id}, render_mode=rgb_array)"
             )
             return
 

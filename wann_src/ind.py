@@ -192,7 +192,7 @@ def getLayer(wMat):
 # -- ANN Activation ------------------------------------------------------ -- #
 
 def act(weights, aVec, nInput, nOutput, inPattern):
-    """Returns FFANN output given a single input pattern
+    """Returns Feed-Forward output given a single input pattern
   If the variable weights is a vector it is turned into a square weight matrix
   
   Allows the network to return the result of several samples at once if given 
@@ -224,9 +224,6 @@ def act(weights, aVec, nInput, nOutput, inPattern):
     wMat[np.isnan(wMat)] = 0
 
     # Vectorize input
-    #MR: to prevent ndim error -> Extract the first element of the tuple  #TODO: maybe rework so that it works without the if
-    if isinstance(inPattern, tuple) and isinstance(inPattern[0], np.ndarray):
-        inPattern = inPattern[0]
     if np.ndim(inPattern) > 1:
         nSamples = np.shape(inPattern)[0]
     else:
@@ -242,7 +239,6 @@ def act(weights, aVec, nInput, nOutput, inPattern):
     for iNode in range(nInput + 1, nNodes):
         rawAct = np.dot(nodeAct, wMat[:, iNode]).squeeze()
         nodeAct[:, iNode] = applyAct(aVec[iNode], rawAct)
-        # print(nodeAct)
     output = nodeAct[:, -nOutput:]
     return output
 

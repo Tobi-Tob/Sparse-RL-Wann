@@ -141,7 +141,7 @@ sparse_mountain_car = Game(env_name='SparseMountainCar',
                            weightCap=2.0,
                            noise_bias=0.0,
                            output_noise=[False, False, False],
-                           max_episode_length=0,
+                           max_episode_length=200,
                            in_out_labels=['position', 'velocity', 'action']
                            )
 games['sparse_mountain_car'] = sparse_mountain_car

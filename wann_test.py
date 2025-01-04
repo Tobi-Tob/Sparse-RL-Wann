@@ -62,7 +62,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Test WANNs on Task')
 
     parser.add_argument('-i', '--infile', type=str,
-                        help='file name for genome input', default='log/test_best.out')
+                        help='file name for genome input', default='log/smc_best.out')
 
     parser.add_argument('-o', '--outPref', type=str,
                         help='file name prefix for result input', default='log/result_')
@@ -71,7 +71,7 @@ if __name__ == "__main__":
                         help='default hyperparameter file', default='p/default_wan.json')
 
     parser.add_argument('-p', '--hyperparam', type=str,
-                        help='hyperparameter file', default=None)
+                        help='hyperparameter file', default='p/sparse_mountain_car.json')
 
     parser.add_argument('-n', '--nVals', type=int,
                         help='Number of weight values to test', default=6)

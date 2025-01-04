@@ -77,7 +77,7 @@ if __name__ == "__main__":
                         help='Number of weight values to test', default=6)
 
     parser.add_argument('-r', '--nReps', type=int,
-                        help='Number of repetitions', default=1)
+                        help='Number of repetitions to calculate average over', default=1)
 
     parser.add_argument('-v', '--view', type=str2bool,
                         help='Visualize trial?', default=False)

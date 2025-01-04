@@ -83,10 +83,10 @@ class CartPoleSwingUpEnv(gym.Env):
         c = math.cos(theta)
 
         xdot_update = (-2 * self.m_p_l * (theta_dot ** 2) * s + 3 * self.m_p * self.g * s * c + 4 * action - 4 * self.b * x_dot) / (
-                    4 * self.total_m - 3 * self.m_p * c ** 2)
+                4 * self.total_m - 3 * self.m_p * c ** 2)
 
         thetadot_update = (-3 * self.m_p_l * (theta_dot ** 2) * s * c + 6 * self.total_m * self.g * s + 6 * (action - self.b * x_dot) * c) / (
-                    4 * self.l * self.total_m - 3 * self.m_p_l * c ** 2)
+                4 * self.l * self.total_m - 3 * self.m_p_l * c ** 2)
 
         x = x + x_dot * self.dt
         theta = theta + theta_dot * self.dt
@@ -206,7 +206,8 @@ class CartPoleSwingUpEnv(gym.Env):
             self.track.set_color(0, 0, 0)
             self.viewer.add_geom(self.track)
 
-        if self.state is None: return None
+        if self.state is None:
+            return None
 
         x = self.state
         cartx = x[0] * scale + screen_width / 2.0  # MIDDLE OF CART

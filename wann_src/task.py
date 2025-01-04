@@ -151,7 +151,6 @@ class Task:
                 else:
                     # Evaluate the network using self.testInd
                     reward[iRep, iVal] = self.testInd(wMat, aVec, seed=seed + iRep, view=view)
-
         if returnVals is True:
             return np.mean(reward, axis=0), wVals
         return np.mean(reward, axis=0)

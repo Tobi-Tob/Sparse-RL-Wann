@@ -71,24 +71,22 @@ class SparseMountainCarEnv(gym.Env):
     """
 
     metadata = {
-        "render_modes": ["human", "rgb_array"],
-        "render_fps": 30,
+        'render.modes': ['human', 'rgb_array'],
+        'video.frames_per_second': 30
     }
 
-    def __init__(self, render_mode: Optional[str] = None, goal_velocity=0):
+    def __init__(self):
         self.min_position = -1.2
         self.max_position = 0.6
         self.max_speed = 0.07  # the cars velocity is clipped to [-max_speed, max_speed]
         self.goal_position = 0.5  # x value that the car has to reach to solve the task
-        self.goal_velocity = goal_velocity
+        self.goal_velocity = 0  # the car has to reach the goal position with a velocity of 0
 
         self.force = 0.001  # magnitude of the acceleration applied to the car when an action is taken
         self.gravity = 0.0025
 
         self.low = np.array([self.min_position, -self.max_speed], dtype=np.float32)
         self.high = np.array([self.max_position, self.max_speed], dtype=np.float32)
-
-        self.render_mode = render_mode
 
         self.screen_width = 600
         self.screen_height = 400
@@ -137,8 +135,6 @@ class SparseMountainCarEnv(gym.Env):
             reward = 0.0
 
         self.state = (position, velocity)
-        if self.render_mode == "human":
-            self.render()
         return np.array(self.state, dtype=np.float32), reward, terminated, {}
 
     def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
@@ -149,31 +145,24 @@ class SparseMountainCarEnv(gym.Env):
         self.state = np.array([self.np_random.uniform(low=low, high=high), 0])
         self.steps_taken = 0
 
-        if self.render_mode == "human":
-            self.render()
         return np.array(self.state, dtype=np.float32)
 
     def _height(self, xs):
         return np.sin(3 * xs) * 0.45 + 0.55
 
-    def render(self):
-        if self.render_mode is None:
-            gym.logger.warn(
-                f"You are calling render method without specifying any render mode. You can specify the render_mode at initialization, e.g. gym({self.spec.id}, render_mode=rgb_array)"
-            )
+    def render(self, mode='human', close=False):
+        if close:
+            if self.viewer is not None:
+                self.viewer.close()
+                self.viewer = None
             return
 
-        try:
-            import pygame
-            from pygame import gfxdraw
-        except ImportError:
-            raise DependencyNotInstalled(
-                "pygame is not installed, run `pip install gym[classic_control]`"
-            )
+        import pygame
+        from pygame import gfxdraw
 
         if self.screen is None:
             pygame.init()
-            if self.render_mode == "human":
+            if mode == "human":
                 pygame.display.init()
                 self.screen = pygame.display.set_mode(
                     (self.screen_width, self.screen_height)
@@ -247,12 +236,12 @@ class SparseMountainCarEnv(gym.Env):
 
         self.surf = pygame.transform.flip(self.surf, False, True)
         self.screen.blit(self.surf, (0, 0))
-        if self.render_mode == "human":
+        if mode == "human":
             pygame.event.pump()
-            self.clock.tick(self.metadata["render_fps"])
+            self.clock.tick(self.metadata["video.frames_per_second"])
             pygame.display.flip()
 
-        elif self.render_mode == "rgb_array":
+        elif mode == "rgb_array":
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
             )

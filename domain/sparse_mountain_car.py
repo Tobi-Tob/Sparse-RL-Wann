@@ -130,9 +130,11 @@ class SparseMountainCarEnv(gym.Env):
         return [seed]
 
     def step(self, action: int):
+        #MR: an array of actions is passed -> select first
+        action = round(np.clip(action, 0.0, 2.0)[0])
         assert self.action_space.contains(
             action
-        ), f"{action!r} ({type(action)}) invalid"
+        ), f"Action {action!r} ({type(action)}) is invalid"
 
         position, velocity = self.state
         velocity += (action - 1) * self.force + math.cos(3 * position) * (-self.gravity)
@@ -150,7 +152,7 @@ class SparseMountainCarEnv(gym.Env):
         self.state = (position, velocity)
         if self.render_mode == "human":
             self.render()
-        return np.array(self.state, dtype=np.float32), reward, terminated, False, {}
+        return np.array(self.state, dtype=np.float32), reward, terminated, False  #MR, {}
 
     def reset(
         self,

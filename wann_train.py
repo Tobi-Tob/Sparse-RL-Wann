@@ -281,7 +281,7 @@ if __name__ == "__main__":
                         help='default hyperparameter file', default='p/default_wan.json')
 
     parser.add_argument('-p', '--hyperparam', type=str,
-                        help='hyperparameter file', default='p/laptop_swing.json')
+                        help='hyperparameter file', default='p/sparse_mountain_car.json')
 
     parser.add_argument('-o', '--outPrefix', type=str,
                         help='file name for result output', default='test')

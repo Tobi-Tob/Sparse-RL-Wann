@@ -9,6 +9,7 @@ import numpy as np
 
 import gym
 from gym import spaces
+from gym.utils import seeding
 from gym.envs.classic_control import utils
 from gym.error import DependencyNotInstalled
 
@@ -123,6 +124,10 @@ class SparseMountainCarEnv(gym.Env):
 
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(self.low, self.high, dtype=np.float32)
+
+    def seed(self, seed=None):
+        self.np_random, seed = seeding.np_random(seed)
+        return [seed]
 
     def step(self, action: int):
         assert self.action_space.contains(

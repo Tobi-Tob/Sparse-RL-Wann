@@ -1,0 +1,5 @@
+{
+    "task":"sparse_mountain_car",
+    "maxGen": 2,
+    "popSize": 20
+}

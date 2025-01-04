@@ -59,7 +59,7 @@ def str2bool(v):
 
 if __name__ == "__main__":
     ''' Parse input and launch '''
-    parser = argparse.ArgumentParser(description=('Test ANNs on Task'))
+    parser = argparse.ArgumentParser(description='Test WANNs on Task')
 
     parser.add_argument('-i', '--infile', type=str,
                         help='file name for genome input', default='log/test_best.out')

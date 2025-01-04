@@ -130,7 +130,7 @@ class SparseMountainCarEnv(gym.Env):
         return [seed]
 
     def step(self, action: int):
-        #MR: an array of actions is passed -> select first
+        #MR: an array of actions is passed -> select first  #TODO: actions selection is not working well!
         action = round(np.clip(action, 0.0, 2.0)[0])
         assert self.action_space.contains(
             action

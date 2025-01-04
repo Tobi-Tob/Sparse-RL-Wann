@@ -224,13 +224,9 @@ def act(weights, aVec, nInput, nOutput, inPattern):
     wMat[np.isnan(wMat)] = 0
 
     # Vectorize input
-    # Extract the first element of the tuple
-    if isinstance(inPattern, tuple) and isinstance(inPattern[0], np.ndarray):  #MR: to prevent ndim error
+    #MR: to prevent ndim error -> Extract the first element of the tuple  #TODO: maybe rework so that it works without the if
+    if isinstance(inPattern, tuple) and isinstance(inPattern[0], np.ndarray):
         inPattern = inPattern[0]
-    else:
-        raise ValueError("MR: Unexpected input structure for inPattern")
-
-    # Vectorize input
     if np.ndim(inPattern) > 1:
         nSamples = np.shape(inPattern)[0]
     else:

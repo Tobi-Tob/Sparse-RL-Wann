@@ -147,14 +147,14 @@ def videos_to_record(episode_id):
 def main():
 
     # parameters
-    verbose = True
+    verbose = False
     seed = 42
     working_dir = "../q-learning_logs"
     num_episodes = 20
     plot_redraw_frequency = 10
 
     # create the environment
-    env = make_env("SparseMountainCar")  #MR: Create ENV from custom script
+    env = make_env("SparseMountainCar")
 
     # set seed to reproduce the same results
     env.seed(seed)
@@ -183,10 +183,11 @@ def main():
         total_reward = 0
         timestep = 0
         done = False
+        stop = False
 
-        while not done and timestep < 200:
+        while not done and not stop:
             # make an action and get the new observations
-            observation, reward, done, info = env.step(action)
+            observation, reward, done, stop, info = env.step(action)
             total_reward += reward
             timestep += 1
 

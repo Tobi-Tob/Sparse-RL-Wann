@@ -136,7 +136,7 @@ class SparseMountainCarEnv(gym.Env):
 
         # Stop the episode if the maximum number of steps is reached
         truncateds = False
-        if self.steps_taken >= 1000:
+        if self.steps_taken >= 200:  # must be the same as max_episode_length in config.py
             truncateds = True
 
         self.state = (position, velocity)

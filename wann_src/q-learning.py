@@ -141,16 +141,16 @@ class Monitor:
 
 
 def videos_to_record(episode_id):
-    return episode_id in [100, 500, 1000, 2000, 3500, 4900]
+    return episode_id in [1, 5, 10, 15, 100, 500, 1000, 2000, 3500, 4900]
 
 
 def main():
 
     # parameters
-    verbose = False
+    verbose = True
     seed = 42
-    working_dir = "q-learning_logs"
-    num_episodes = 5000
+    working_dir = "../q-learning_logs"
+    num_episodes = 20
     plot_redraw_frequency = 10
 
     # create the environment
@@ -161,7 +161,7 @@ def main():
     np.random.seed(seed)
 
     # monitor the training
-    # env = RecordVideo(env, video_folder=working_dir, episode_trigger=videos_to_record)
+    env = RecordVideo(env, video_folder=working_dir, episode_trigger=videos_to_record)
 
 
     agent = Agent(
@@ -184,7 +184,7 @@ def main():
         timestep = 0
         done = False
 
-        while not done:
+        while not done and timestep < 200:
             # make an action and get the new observations
             observation, reward, done, info = env.step(action)
             total_reward += reward

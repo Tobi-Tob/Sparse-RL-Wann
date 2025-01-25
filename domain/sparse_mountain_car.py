@@ -134,8 +134,13 @@ class SparseMountainCarEnv(gym.Env):
         else:
             reward = 0.0
 
+        # Stop the episode if the maximum number of steps is reached
+        truncateds = False
+        if self.steps_taken >= 10000:
+            truncateds = True
+
         self.state = (position, velocity)
-        return np.array(self.state, dtype=np.float32), reward, terminated, {}
+        return np.array(self.state, dtype=np.float32), reward, terminated, truncateds, {}
 
     def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)

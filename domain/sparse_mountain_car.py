@@ -102,6 +102,8 @@ class SparseMountainCarEnv(gym.Env):
         self.state = None
         self.steps_taken = 0  # Initialize step counter
 
+        self.render_mode = "rgb_array"  # "rgb_array" or "human"
+
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
@@ -156,6 +158,7 @@ class SparseMountainCarEnv(gym.Env):
         return np.sin(3 * xs) * 0.45 + 0.55
 
     def render(self, mode='human', close=False):
+        mode = self.render_mode
         if close:
             if self.viewer is not None:
                 self.viewer.close()

@@ -141,7 +141,7 @@ class Monitor:
 
 
 def videos_to_record(episode_id):
-    return episode_id in [1, 5, 10, 15, 100, 500, 1000, 2000, 3500, 4900]
+    return episode_id in [1, 100, 500, 1000, 2000, 3500, 4900]
 
 
 def main():
@@ -149,8 +149,8 @@ def main():
     # parameters
     verbose = False
     seed = 42
-    working_dir = "../q-learning_logs"
-    num_episodes = 20
+    working_dir = "../q-learning_logs/epi_5000"
+    num_episodes = 5000
     plot_redraw_frequency = 10
 
     # create the environment
@@ -192,7 +192,7 @@ def main():
             timestep += 1
 
             if verbose:
-                # env.render()
+                env.render(mode="rgb_array")
                 print("Timestep: {0:3d}, Action: {1:2d}, Reward: {2:5.1f}, Car \
                       position: {3:6.3f}, Car velocity: {4:6.3f}"
                       .format(timestep, action, reward, *observation))

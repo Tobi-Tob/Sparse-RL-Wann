@@ -138,7 +138,7 @@ sparse_mountain_car = Game(env_name='SparseMountainCar',
                            i_act=np.full(2, 1),
                            h_act=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                            o_act=np.full(3, 1),
-                           weightCap=2.0,
+                           weightCap=1.0,  # 2.0
                            noise_bias=0.0,
                            output_noise=[False, False, False],
                            max_episode_length=200,  # must be the same in sparse_mountain_car.py for stop return value
@@ -156,7 +156,7 @@ sparse_mountain_car_conti = Game(env_name='SparseMountainCarConti',
                                  i_act=np.full(2, 1),
                                  h_act=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                                  o_act=np.full(1, 1),
-                                 weightCap=2.0,
+                                 weightCap=1.0,  # 2.0
                                  noise_bias=0.0,
                                  output_noise=[False, False, False],
                                  max_episode_length=200,  # must be the same in sparse_mountain_car_conti.py for stop return value

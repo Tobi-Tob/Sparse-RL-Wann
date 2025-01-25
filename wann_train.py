@@ -206,7 +206,7 @@ def slave():
             seed = comm.recv(source=0, tag=5)  # random seed as int
 
             # Evaluate the received network using the task.getDistFitness method, which computes the fitness of the network.
-            result = task.getDistFitness(wVec, aVec, hyp, seed=seed)
+            result = task.getDistFitness(wVec, aVec, hyp, nVals=hyp['alg_nVals'], seed=seed)
 
             comm.Send(result, dest=0)  # send it back
 

@@ -10,7 +10,7 @@ from gym.envs.classic_control import utils
 from gym.error import DependencyNotInstalled
 
 
-class SparseMountainCarEnv(gym.Env):
+class SparseMountainCarContiEnv(gym.Env):
     """
     ### Description
 
@@ -19,7 +19,7 @@ class SparseMountainCarEnv(gym.Env):
     that can be applied to the car in either direction. The goal of the MDP is to strategically
     accelerate the car to reach the goal state on top of the right hill. There are two versions
     of the mountain car domain in gym: one with discrete actions and one with continuous.
-    This version is the one with discrete actions.
+    This version is the one with continuous actions.
 
     ### Observation Space
 
@@ -32,19 +32,17 @@ class SparseMountainCarEnv(gym.Env):
 
     ### Action Space
 
-    There are 3 discrete deterministic actions:
-
     | Num | Observation             | Value | Unit         |
     |-----|-------------------------|-------|--------------|
-    | 0   | Accelerate to the left  | Inf   | position (m) |
-    | 1   | Don't accelerate        | Inf   | position (m) |
-    | 2   | Accelerate to the right | Inf   | position (m) |
+    | neg | Accelerate to the left  | [-1,0)| position (m) |
+    | 0   | Don't accelerate        | Inf   | position (m) |
+    | pos | Accelerate to the right | (0,1] | position (m) |
 
     ### Transition Dynamics:
 
     Given an action, the mountain car follows the following transition dynamics:
 
-    velocity_t+1 = velocity_t + (action - 1) * force - cos(3 * position_t) * gravity
+    velocity_t+1 = velocity_t + action * force - cos(3 * position_t) * gravity
 
     *position_t+1 = position_t + velocity_t+1
 
@@ -94,7 +92,9 @@ class SparseMountainCarEnv(gym.Env):
         self.clock = None
         self.isopen = True
 
-        self.action_space = spaces.Discrete(3)  # 0 (accelerate left), 1 (no acceleration), 2 (accelerate right)
+        low = -1.0
+        high = 1.0
+        self.action_space = spaces.Box(low=low, high=high, shape=(1,), dtype=np.float32)
         self.observation_space = spaces.Box(self.low, self.high, dtype=np.float32)
 
         self.seed()
@@ -106,18 +106,17 @@ class SparseMountainCarEnv(gym.Env):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def step(self, action: int):
-        # If the input action is a list or array, take the index of the max value as the discrete action
-        if isinstance(action, (list, np.ndarray)):
-            action = int(np.argmax(action))  # Convert to discrete action based on the highest value
-        # ensure the action is valid
+    def step(self, action):
+        # Ensure the action is of type float32 and valid
+        action = np.array(action, dtype=np.float32)
+        action = np.clip(action, -1.0, 1.0)
         assert self.action_space.contains(
             action
         ), f"Action {action!r} ({type(action)}) is invalid, must be in {self.action_space}"
+        action = action[0]
 
         position, velocity = self.state
-        velocity += (action - 1) * self.force + math.cos(3 * position) * (-self.gravity)
-        #  action can be 0 (accelerate left), 1 (no acceleration), or 2 (accelerate right)
+        velocity += action * self.force + math.cos(3 * position) * (-self.gravity)
         velocity = np.clip(velocity, -self.max_speed, self.max_speed)
         position += velocity
         position = np.clip(position, self.min_position, self.max_position)

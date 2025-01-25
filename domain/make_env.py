@@ -47,8 +47,12 @@ def make_env(env_name, seed=-1, render_mode=False):
 
     # -- Sparse Mountain Car ------------------------------------------- -- #
     elif env_name.startswith("SparseMountainCar"):
-        from domain.sparse_mountain_car import SparseMountainCarEnv
-        env = SparseMountainCarEnv()
+        if env_name.startswith("SparseMountainCarConti"):
+            from domain.sparse_mountain_car_conti import SparseMountainCarContiEnv
+            env = SparseMountainCarContiEnv()
+        else:
+            from domain.sparse_mountain_car import SparseMountainCarEnv
+            env = SparseMountainCarEnv()
 
     # -- Other  -------------------------------------------------------- -- #
     else:

@@ -131,8 +131,8 @@ games['biped'] = biped
 
 sparse_mountain_car = Game(env_name='SparseMountainCar',
                            actionSelect='all',  # all, soft, hard
-                           input_size=2,
-                           output_size=3,
+                           input_size=2,  # position, velocity
+                           output_size=3,  # accelerate left, no acceleration, accelerate right (discrete values)
                            time_factor=0,
                            layers=[5, 5],
                            i_act=np.full(2, 1),
@@ -146,3 +146,21 @@ sparse_mountain_car = Game(env_name='SparseMountainCar',
                                           'accelerate\nleft', 'no\nacceleration', 'accelerate\nright']
                            )
 games['sparse_mountain_car'] = sparse_mountain_car
+
+sparse_mountain_car_conti = Game(env_name='SparseMountainCarConti',
+                                 actionSelect='all',  # all, soft, hard
+                                 input_size=2,  # position, velocity
+                                 output_size=1,  # acceleration (continuous value)
+                                 time_factor=0,
+                                 layers=[5, 5],
+                                 i_act=np.full(2, 1),
+                                 h_act=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                                 o_act=np.full(1, 1),
+                                 weightCap=2.0,
+                                 noise_bias=0.0,
+                                 output_noise=[False, False, False],
+                                 max_episode_length=200,
+                                 in_out_labels=['position', 'velocity',
+                                                'acceleration']
+                                 )
+games['sparse_mountain_car_conti'] = sparse_mountain_car_conti

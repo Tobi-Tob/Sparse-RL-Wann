@@ -66,7 +66,7 @@ class Task:
         annOut = act(wVec, aVec, self.nInput, self.nOutput, state)
         action = selectAct(annOut, self.actSelect)
 
-        state, reward, done, info = self.env.step(action)
+        state, reward, done, stop, info = self.env.step(action)
         if self.maxEpisodeLength == 0:
             return reward
         else:
@@ -75,7 +75,7 @@ class Task:
         for tStep in range(self.maxEpisodeLength):
             annOut = act(wVec, aVec, self.nInput, self.nOutput, state)
             action = selectAct(annOut, self.actSelect)
-            state, reward, done, info = self.env.step(action)
+            state, reward, done, stop, info = self.env.step(action)
             totalReward += reward
             if view:
                 # time.sleep(0.01)

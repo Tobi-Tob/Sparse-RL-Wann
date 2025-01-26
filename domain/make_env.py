@@ -54,6 +54,15 @@ def make_env(env_name, seed=-1, render_mode=False):
             from domain.sparse_mountain_car import SparseMountainCarEnv
             env = SparseMountainCarEnv()
 
+    # -- Lunar Lander ------------------------------------------- -- #
+    elif env_name.startswith("LunarLander"):
+        if env_name.startswith("LunarLanderConti"):
+            from domain.lunar_lander import LunarLanderEnv
+            env = LunarLanderEnv(render_mode="human", continuous=True, enable_wind=False)
+        else:
+            from domain.lunar_lander import LunarLanderEnv
+            env = LunarLanderEnv(render_mode="human", continuous=False, enable_wind=False)
+
     # -- Other  -------------------------------------------------------- -- #
     else:
         env = gym.make(env_name)

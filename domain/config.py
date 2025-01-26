@@ -159,8 +159,48 @@ sparse_mountain_car_conti = Game(env_name='SparseMountainCarConti',
                                  weightCap=1.0,  # 2.0
                                  noise_bias=0.0,
                                  output_noise=[False, False, False],
-                                 max_episode_length=200,  # must be the same in sparse_mountain_car_conti.py for stop return value
+                                 max_episode_length=200,
+                                 # must be the same in sparse_mountain_car_conti.py for stop return value
                                  in_out_labels=['position', 'velocity',
                                                 'acceleration']
                                  )
 games['sparse_mountain_car_conti'] = sparse_mountain_car_conti
+
+# -- Lunar Lander ------------------------------------------------------------- -- #
+lunar_lander = Game(env_name='LunarLander',
+                    actionSelect='all',  # all, soft, hard
+                    input_size=8,
+                    # x, y coords, velocities x', y', angle, angular velocity, two booleans that represent whether each leg is in contact with the ground or not
+                    output_size=4,  # do nothing, fire left engine, fire main engine, fire right engine
+                    time_factor=0,
+                    layers=[5, 5],
+                    i_act=np.full(8, 1),
+                    h_act=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                    o_act=np.full(4, 1),
+                    weightCap=2.0,
+                    noise_bias=0.0,
+                    output_noise=[False, False, False],
+                    max_episode_length=1000,  # must be the same in lunar_lander.py for stop return value
+                    in_out_labels=['x', 'y', 'dx', 'dy', 'angle', 'angular\nvel', 'leg1', 'leg2',
+                                   'do\nnothing', 'fire\nleft', 'fire\nmain', 'fire\nright']
+                    )
+games['lunar_lander'] = lunar_lander
+
+lunar_lander_conti = Game(env_name='LunarLanderConti',
+                          actionSelect='all',  # all, soft, hard
+                          input_size=8,
+                          # x, y coords, velocities x', y', angle, angular velocity, two booleans that represent whether each leg is in contact with the ground or not
+                          output_size=2,  # main engine, lateral engine
+                          time_factor=0,
+                          layers=[5, 5],
+                          i_act=np.full(8, 1),
+                          h_act=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                          o_act=np.full(2, 1),
+                          weightCap=2.0,
+                          noise_bias=0.0,
+                          output_noise=[False, False, False],
+                          max_episode_length=1000,  # must be the same in lunar_lander.py for stop return value
+                          in_out_labels=['x', 'y', 'dx', 'dy', 'angle', 'angular\nvel', 'leg1', 'leg2',
+                                         'main', 'lateral']
+                          )
+games['lunar_lander_conti'] = lunar_lander_conti

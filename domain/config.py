@@ -173,7 +173,7 @@ lunar_lander = Game(env_name='LunarLander',
                     # x, y coords, velocities x', y', angle, angular velocity, two booleans that represent whether each leg is in contact with the ground or not
                     output_size=4,  # do nothing, fire left engine, fire main engine, fire right engine
                     time_factor=0,
-                    layers=[5, 5],
+                    layers=[5, 5],  # not used...
                     i_act=np.full(8, 1),
                     h_act=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                     o_act=np.full(4, 1),

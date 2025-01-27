@@ -2,6 +2,6 @@
     "task":"lunar_lander",
     "alg_nVals": 6,
     "alg_nReps": 4,
-    "maxGen": 1024,
-    "popSize": 128
+    "maxGen": 256,
+    "popSize": 480
 }

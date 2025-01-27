@@ -61,7 +61,7 @@ def make_env(env_name, seed=-1, render_mode=False):
             env = LunarLanderEnv(render_mode="human", continuous=True, enable_wind=False)
         else:
             from domain.lunar_lander import LunarLanderEnv
-            env = LunarLanderEnv(render_mode="human", continuous=False, enable_wind=False)
+            env = LunarLanderEnv(render_mode=None, continuous=False, enable_wind=False)
 
     # -- Other  -------------------------------------------------------- -- #
     else:

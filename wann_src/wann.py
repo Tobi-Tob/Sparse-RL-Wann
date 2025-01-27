@@ -131,9 +131,9 @@ class Wann:
         objVals = np.c_[meanFit, maxFit, 1 / nConns]  # Maximize
 
         # Alternate second objective
-        if self.p['alg_probMoo'] < np.random.rand():
+        if self.p['alg_probMoo'] < np.random.rand():  # MR: alg_probMoo = 0.8 -> use maxFit as second objective 80% of the time
             rank = nsga_sort(objVals[:, [0, 1]])
-        else:
+        else:  # MR: alg_probMoo = 0.8 -> use 1/#connections as second objective 20% of the time
             rank = nsga_sort(objVals[:, [0, 2]])
 
         # Assign ranks

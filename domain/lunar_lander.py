@@ -1,5 +1,7 @@
 __credits__ = ["Andrea PIERRÉ"]
 
+# Link: https://github.com/openai/gym/blob/master/gym/envs/box2d/lunar_lander.py
+
 import math
 import warnings
 from typing import TYPE_CHECKING, Optional

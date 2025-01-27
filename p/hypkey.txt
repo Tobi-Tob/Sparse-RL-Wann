@@ -5,8 +5,9 @@ maxGen            - (int)    - number of generations to run algorithm
 popSize           - (int)    - number of individuals in population
 
 alg_wDist		  - (string) - "standard": 6 chosen values ([-2,-1,-0.5,0.5,1,2])
+                               "one": Use only a single fixed weight that has the value of 1
                                "other": linspace of alg_nVals between weight caps
-alg_nVals         - (int)    - number of weights to test when evaluating individual
+alg_nVals         - (int)    - number of weights to test when evaluating individual (not used for 'single')
 alg_nReps         - (int)    - number of repetitions when evaluating individuals
 alg_probMoo       - (float)  - chance of applying second objective when using MOO
 

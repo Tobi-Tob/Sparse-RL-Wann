@@ -1,13 +1,10 @@
 import math
 from typing import Optional
-
 import numpy as np
-
 import gym
 from gym import spaces
 from gym.utils import seeding
 from gym.envs.classic_control import utils
-from gym.error import DependencyNotInstalled
 
 
 class SparseMountainCarEnv(gym.Env):

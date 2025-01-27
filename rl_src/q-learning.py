@@ -163,15 +163,15 @@ def main():
     # monitor the training
     env = RecordVideo(env, video_folder=working_dir, episode_trigger=videos_to_record)
 
-
+    # MR: Modifications to the original settings because more exploration is needed in sparse reward environments
     agent = Agent(
-        lr_init=0.3,
-        lr_min=1e-5,
+        lr_init=0.1,  # 0.3,
+        lr_min=1e-3,  # 1e-5,
         lr_decay_rate=5e-4,
-        gamma=0.98,
-        epsilon=0.9,
-        epsilon_decay_rate=5e-3,
-        num_bins=15
+        gamma=0.99,  # 0.98,
+        epsilon=1.0,  # 0.9,
+        epsilon_decay_rate=1e-3,  # 5e-3,
+        num_bins=30,  # 15
     )
 
     monitor = Monitor(num_episodes=num_episodes)

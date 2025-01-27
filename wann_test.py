@@ -59,6 +59,7 @@ def str2bool(v):
 
 if __name__ == "__main__":
     ''' Parse input and launch '''
+    # python wann_test.py -i log/test_best.out -p p/sparse_mountain_car.json -n 6 -r 1 -v True
     parser = argparse.ArgumentParser(description='Test WANNs on Task')
 
     parser.add_argument('-i', '--infile', type=str,

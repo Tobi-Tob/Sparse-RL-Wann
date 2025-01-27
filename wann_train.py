@@ -57,7 +57,7 @@ def gatherData(data, wann, gen, hyp, savePop=False):
     data - (DataGatherer) - updated run data
     """
     data.gatherData(wann.pop, wann.species)
-    if (gen % hyp['save_mod']) == 0:  # TL: Replace 'is' with '==' for literal comparison
+    if (gen % hyp['save_mod']) == 0:
 
         # data = checkBest(data, bestReps=16)
         data = checkBest(data)
@@ -275,6 +275,7 @@ def main(argv):
 
 if __name__ == "__main__":
     ''' Parse input and launch '''
+    # python wann_train.py -p p/sparse_mountain_car_conti.json -o smcc
     parser = argparse.ArgumentParser(description='Evolve NEAT networks')
 
     parser.add_argument('-d', '--default', type=str,

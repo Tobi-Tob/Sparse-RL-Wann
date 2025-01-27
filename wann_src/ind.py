@@ -365,6 +365,14 @@ def exportNet(filename, wMat, aVec):
 
 
 def importNet(fileName):
+    """
+    Import weight matrix and activation vector from file
+    returns:
+        wVec - (np_array) - weight matrix as a vector
+        aVec - (np_array) - activation function of each node
+        wKey - (np_array) - Contains the indices of the non-zero elements in the array wVec.
+                            This is useful for identifying the positions of active connections in the weight vector.
+    """
     ind = np.loadtxt(fileName, delimiter=',')
     wMat = ind[:, :-1]  # Weight Matrix
     aVec = ind[:, -1]  # Activation functions

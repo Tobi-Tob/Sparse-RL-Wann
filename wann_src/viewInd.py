@@ -10,14 +10,20 @@ from domain.config import games
 
 def viewInd(ind, taskName):
     env = games[taskName]
-    if isinstance(ind, str):
+    if isinstance(ind, str):  # ind is a string containing the path to the file
         ind = np.loadtxt(ind, delimiter=',')
         wMat = ind[:, :-1]
         aVec = ind[:, -1]
+        # print the number of connections in the ANN that are not nan
+        print('# of Connections in network: ', np.sum((wMat != 0) & ~np.isnan(wMat)))
+    elif isinstance(ind, tuple):  # ind is a tuple containing wMat and aVec
+        wMat = ind[0]
+        aVec = ind[1]
     else:
-        wMat = ind.wMat
-        aVec = np.zeros((np.shape(wMat)[0]))
-    print('# of Connections in ANN: ', np.sum(wMat != 0))
+        print("Warning: ind should be a string or a tuple")
+        return
+    # Replace every 0 in wMat with nan
+    wMat[np.isclose(wMat, 0)] = np.nan
 
     # Create Graph
     nIn = env.input_size + 1  # bias
@@ -29,10 +35,8 @@ def viewInd(ind, taskName):
     fig = plt.figure(figsize=(10, 10), dpi=100)
     ax = fig.add_subplot(111)
     drawEdge(G, pos, wMat, layer)
-    nx.draw_networkx_nodes(G, pos,
-                           node_color='lightblue', node_shape='o',
-                           cmap='terrain', vmin=0, vmax=6)
-    drawNodeLabels(G, pos, aVec)  # MR: annotate which activation function is used
+
+    drawNodes(G, pos, aVec)  # Draw nodes with activation function and their respective colors
     labelInOut(pos, env)  # MR: annotate which input/output is used
 
     plt.tick_params(
@@ -126,11 +130,41 @@ def labelInOut(pos, env):
                      arrowprops=dict(arrowstyle="<-", color='k', connectionstyle="angle"))
 
 
-def drawNodeLabels(G, pos, aVec):
-    actLabel = np.array((['', '( + )', '(0/1)', '(sin)', '(gau)', '(tanh)',
-                          '(sig)', '( - )', '(abs)', '(relu)', '(cos)']))
+def drawNodes(G, pos, aVec):
+    actLabel = np.array((['', '(lin)', '(0/1)', '(sin)', '(gaus)', '(tanh)',
+                          '(sig)', '(inv)', '(abs)', '(relu)', '(cos)', '(x^2)']))
+    '''
+    index 1  -- Linear
+    index 2  -- Unsigned Step Function [0 for x < 0, 1 otherwise]
+    index 3  -- Sinus
+    index 4  -- Gaussian with mean 0 and sigma 1
+    index 5  -- Hyperbolic Tangent [tanh] (signed)
+    index 6  -- Sigmoid unsigned [1 / (1 + exp(-x))]
+    index 7  -- Inverse
+    index 8  -- Absolute Value
+    index 9  -- Relu
+    index 10 -- Cosine
+    index 11 -- Squared
+    '''
+    # Assign labels and colors
     listLabel = actLabel[aVec.astype(int)]
     label = dict(enumerate(listLabel))
+
+    # Define a colormap for node colors (you can also define custom colors here)
+    cmap = plt.cm.tab10  # Tab10 colormap (10 distinct colors)
+    unique_types = np.unique(aVec)  # Unique activation types in aVec
+    color_mapping = {atype: cmap(i / len(unique_types)) for i, atype in enumerate(unique_types)}
+
+    # Assign colors based on activation type
+    node_colors = [color_mapping[atype] for atype in aVec]
+
+    # Draw nodes with their respective colors
+    nx.draw_networkx_nodes(G, pos,
+                           node_color=node_colors,
+                           node_shape='o')
+    # cmap='terrain', vmin=0, vmax=6)
+
+    # Draw labels on the nodes
     nx.draw_networkx_labels(G, pos, labels=label)
 
 
@@ -161,15 +195,15 @@ def drawEdge(G, pos, wMat, layer):
 
 
 def getLayer(wMat):
-    '''
+    """
     Traverse wMat by row, collecting layer of all nodes that connect to you (X).
     Your layer is max(X)+1
-    '''
+    """
     wMat[np.isnan(wMat)] = 0
     wMat[wMat != 0] = 1
     nNode = np.shape(wMat)[0]
     layer = np.zeros((nNode))
-    while (True):  # Loop until sorting doesn't help any more
+    while True:  # Loop until sorting doesn't help anymore
         prevOrder = np.copy(layer)
         for curr in range(nNode):
             srcLayer = np.zeros((nNode))

@@ -2,6 +2,7 @@ import os
 import numpy as np
 import copy
 from .ind import exportNet
+from wann_src.viewInd import viewInd
 
 
 class DataGatherer:
@@ -23,8 +24,6 @@ class DataGatherer:
         self.spec_fit = []  # List to store species fitnesses
         self.field = ['x_scale', 'fit_med', 'fit_max', 'fit_top',
                       'fit_peak', 'node_med', 'conn_med', 'elite', 'best']
-        # List of fields to record
-
         self.objVals = np.array([])  # Multi-Objective Optimization (MOO) Fronts
 
         for f in self.field[:-2]:
@@ -45,7 +44,7 @@ class DataGatherer:
         conns = np.asarray([ind.nConn for ind in pop])
 
         # --- Evaluation Scale ---------------------------------------------------
-        if len(self.x_scale) is 0:
+        if len(self.x_scale) == 0:
             self.x_scale = np.append(self.x_scale, len(pop))
         else:
             self.x_scale = np.append(self.x_scale, self.x_scale[-1] + len(pop))
@@ -53,7 +52,7 @@ class DataGatherer:
 
         # --- Best Individual ----------------------------------------------------
         self.elite.append(pop[np.argmax(fitness)])
-        if len(self.best) is 0:
+        if len(self.best) == 0:
             self.best = copy.deepcopy(self.elite)
         elif (self.elite[-1].fitness > self.best[-1].fitness):
             self.best = np.append(self.best, copy.deepcopy(self.elite[-1]))
@@ -109,7 +108,14 @@ class DataGatherer:
             folder = 'log/' + filename + '_best/'
             if not os.path.exists(folder):
                 os.makedirs(folder)
-            exportNet(folder + str(gen).zfill(4) + '.out', wMat, aVec)
+            log_name = folder + str(gen).zfill(4)
+            exportNet(log_name + '.out', wMat, aVec)
+            # Possible Value Errors can occur here
+            try:
+                fig, _ = viewInd((wMat, aVec), self.p['task'])
+                fig.savefig(log_name + '.png')
+            except ValueError:
+                pass
         # ------------------------------------------------------------------------
 
         # --- MOO Fronts ---------------------------------------------------------

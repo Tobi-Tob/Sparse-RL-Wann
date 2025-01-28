@@ -15,12 +15,13 @@ def show_pareto_front(args):
     col2 = col1 + 2
     obj1 = objVals[:, col1]
     obj2 = objVals[:, col2]
-    objVals = np.c_[obj1, 1 / obj2]
+    objVals_inv = np.c_[obj1, 1 / obj2]
+    objVals = np.c_[obj1, obj2]
     # print("MeanFit: ", obj1)
     # print("#conns: ", obj2)
 
     # Perform NSGA-II sorting to get Pareto fronts
-    rank, fronts = nsga_sort(objVals, returnFronts=True)
+    rank, fronts = nsga_sort(objVals_inv, returnFronts=True)
     # print("Pareto Fronts: ", fronts)
 
     # Visualization of all points and Pareto fronts
@@ -33,7 +34,7 @@ def show_pareto_front(args):
     colors = ["red", "orange", "green"]
     for i, front in enumerate(fronts[:args.nFronts]):  # Only process the first x fronts
         front_points = objVals[front]
-        print(f"Pareto Front {i + 1}: {front_points}")
+        print(f"Pareto Front {i + 1}:\n{front_points}")
         plt.scatter(
             front_points[:, 0],
             front_points[:, 1],
@@ -66,13 +67,13 @@ if __name__ == "__main__":
                         help='input objective values', default='log/lula/lula_256_480_objVals.out')
 
     parser.add_argument('-g', '--gen', type=int,
-                        help='generation of the population', default=0)
+                        help='generation of the population', default=255)
 
     parser.add_argument('-n', '--nFronts', type=int,
-                        help='number of pareto fronts to highlight', default=3)
+                        help='number of pareto fronts to highlight', default=1)
 
     parser.add_argument('-s', '--save', type=bool,
-                        help='save the fig?', default=False)
+                        help='save the fig?', default=True)
 
     parser.add_argument('-p', '--savePath', type=str,
                         help='path to save the fig to. Only active if -s is True', default='log/lula/lula_256_480_pareto.pdf')

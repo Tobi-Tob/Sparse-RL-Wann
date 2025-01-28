@@ -63,22 +63,22 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Test WANNs on Task')
 
     parser.add_argument('-i', '--infile', type=str,
-                        help='file name for genome input', default='log/smc_best.out')
+                        help='file name for genome input', default='log/lula/lula_256_480_best.out')
 
     parser.add_argument('-o', '--outPref', type=str,
-                        help='file name prefix for result input', default='log/result_')
+                        help='file name prefix for result input', default='log/lula/result_lula_256_480_')
 
     parser.add_argument('-d', '--default', type=str,
                         help='default hyperparameter file', default='p/default_wan.json')
 
     parser.add_argument('-p', '--hyperparam', type=str,
-                        help='hyperparameter file', default='p/sparse_mountain_car.json')
+                        help='hyperparameter file', default='p/lunar_lander.json')
 
     parser.add_argument('-n', '--nVals', type=int,
                         help='Number of weight values to test', default=6)
 
     parser.add_argument('-r', '--nReps', type=int,
-                        help='Number of repetitions to calculate average over', default=1)
+                        help='Number of repetitions to calculate average over', default=1000)
 
     parser.add_argument('-v', '--view', type=str2bool,
                         help='Visualize trial?', default=False)

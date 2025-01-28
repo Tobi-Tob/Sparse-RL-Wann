@@ -90,7 +90,7 @@ class Monitor:
                  num_episodes):
 
         self.num_episodes = num_episodes
-        self.rewards = np.zeros(num_episodes, dtype=int)
+        self.rewards = np.zeros(num_episodes, dtype=float)
         self.episode_plot = None
         self.avg_plot = None
         self.fig = None
@@ -144,12 +144,30 @@ def videos_to_record(episode_id):
     return episode_id in [1, 100, 500, 1000, 2000, 3500, 4900]
 
 
+def create_fig(x, y, filename=None):
+    plt.figure(figsize=(10, 8))
+
+    # Plot all points
+    plt.plot(x, y, color="orange")
+
+    # Add titles, labels, and legend
+    plt.title(f"Episode Reward History", fontsize=22)
+    plt.xlabel(f"Episode", fontsize=20)
+    plt.ylabel(f"Total Reward", fontsize=20)
+    plt.xticks(fontsize=14)
+    plt.yticks(fontsize=14)
+    plt.grid(True)
+
+    plt.savefig(filename, bbox_inches='tight') if filename else None
+    plt.show()
+
+
 def main():
 
     # parameters
     verbose = False
     seed = 42
-    working_dir = "../q-learning_logs/test_1"
+    working_dir = "../q-learning_logs/test"
     num_episodes = 5001
     plot_redraw_frequency = 10
 
@@ -157,7 +175,7 @@ def main():
     env = make_env("SparseMountainCar")
 
     # set seed to reproduce the same results
-    env.seehumd(seed)
+    env.seed(seed)
     np.random.seed(seed)
 
     # monitor the training
@@ -223,6 +241,10 @@ def main():
     # save the history in a csv file
     df = pd.DataFrame(monitor.rewards, columns=["reward"])
     df.to_csv(os.path.join(working_dir, "history.csv"), index_label="episode")
+
+    # Create and save the plot
+    create_fig(df.index.to_list(), df['reward'].to_list(), os.path.join(working_dir, "history.pdf"))
+
     env.env.close()
 
 

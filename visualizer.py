@@ -4,6 +4,7 @@ import numpy as np
 from wann_src.viewInd import viewInd
 from wann_src import importNet
 from domain import SparseMountainCarEnv, SparseMountainCarContiEnv
+from domain.make_env import make_env
 
 
 def visualize(args):
@@ -13,7 +14,7 @@ def visualize(args):
     fig.savefig(f'{args.input.split(".")[0]}.pdf')
 
     # If the task is mountain_car, also generate the policy visualization
-    if args.task == 'sparse_mountain_car' or 'sparse_mountain_car_conti':
+    if args.task == 'SparseMountainCar' or 'SparseMountainCarConti':
         # Define parameter
         shared_weight = 1.0  # The one shared weight value that is used for all connections in the network
         granularity = 100  # granularity of the resolution of the state space
@@ -27,11 +28,8 @@ def visualize(args):
         cMat[cMat != 0] = 1.0
         wMat = np.copy(cMat) * shared_weight
 
-        # Create the task environment
-        if args.task == 'sparse_mountain_car':
-            env = SparseMountainCarEnv()
-        elif args.task == 'sparse_mountain_car_conti':
-            env = SparseMountainCarContiEnv()
+        # Initialize the environment
+        env = make_env(args.task)
 
         # Generate the policy visualization
         print(f"Generating policy visualization for {args.task}...")
@@ -46,7 +44,7 @@ if __name__ == "__main__":
     parser.add_argument('-i', '--input', type=str,
                         help='Input model architecture', default='log/smcc_best/0028.out')
 
-    parser.add_argument('-t', '--task', type=str,
-                        help='Task the model was trained for', default='sparse_mountain_car_conti')
+    parser.add_argument("-t", "--task", type=str,
+                        help="Task to use (SparseMountainCar, SparseMountainCarConti)", default="SparseMountainCar")
 
     visualize(parser.parse_args())

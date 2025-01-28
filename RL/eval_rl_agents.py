@@ -2,6 +2,7 @@ import os
 
 import numpy as np
 from stable_baselines3 import PPO, A2C, DQN, SAC
+from domain.make_env import make_env
 
 
 def evaluate_agent(args):
@@ -12,19 +13,7 @@ def evaluate_agent(args):
     visualize = True
 
     # Initialize the environment
-    if task == 'sparse_mountain_car':
-        from domain import SparseMountainCarEnv
-        env = SparseMountainCarEnv()
-    elif task == 'sparse_mountain_car_conti':
-        from domain import SparseMountainCarContiEnv
-        env = SparseMountainCarContiEnv()
-    elif task == 'mountain_car':
-        import gym
-        env = gym.make('MountainCar-v0')
-    elif task == 'lunar_lander':
-        raise ValueError(f"Task {task} not supported yet")
-    else:
-        raise ValueError(f"Task {task} not supported")
+    env = make_env(args.task)
 
     # Load the model
     model_path = os.path.join(saved_dir, f"{args.task}_{args.algo}")

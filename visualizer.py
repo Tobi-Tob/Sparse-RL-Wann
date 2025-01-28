@@ -5,7 +5,7 @@ from wann_src.viewInd import viewInd
 def show_network(args):
     fig, ax = viewInd(ind=args.input, taskName=args.task)
     fig.show()
-    fig.savefig(f'{args.input}.png')
+    fig.savefig(f'{args.input.split(".")[0]}.pdf')
 
 
 if __name__ == "__main__":

@@ -6,9 +6,9 @@ from RL.eval_rl_agents import evaluate_agent
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train RL Agent")
 
-    parser.add_argument("-a", "--algo", type=str, help="Algorithm to use (PPO, A2C, DQN)", default="PPO")
+    parser.add_argument("-a", "--algo", type=str, help="Algorithm to use (PPO, A2C, DQN)", default="DQN")
     parser.add_argument("-t", "--task", type=str,
-                        help="Task to use (sparse_mountain_car, sparse_mountain_car_conti)", default="sparse_mountain_car_conti")
+                        help="Task to use (SparseMountainCar, SparseMountainCarConti)", default="SparseMountainCar")
     parser.add_argument("-o", "--outdir", type=str, help="Directory to save the model and logs", default="RL/log")
 
     parser.add_argument("-m", "--mode", type=str, help="Mode to run (train, test)", default="train")

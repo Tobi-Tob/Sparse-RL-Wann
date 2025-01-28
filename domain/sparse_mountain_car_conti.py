@@ -73,7 +73,7 @@ class SparseMountainCarContiEnv(gym.Env):
         'video.frames_per_second': 30
     }
 
-    def __init__(self):
+    def __init__(self, render_mode="human", use_sparse_reward=True):
         self.min_position = -1.2
         self.max_position = 0.6
         self.max_speed = 0.07  # the cars velocity is clipped to [-max_speed, max_speed]
@@ -101,6 +101,9 @@ class SparseMountainCarContiEnv(gym.Env):
         self.viewer = None
         self.state = None
         self.steps_taken = 0  # Initialize step counter
+
+        self.render_mode = render_mode  # "rgb_array" or "human"
+        self.use_sparse_reward = use_sparse_reward
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
@@ -155,6 +158,7 @@ class SparseMountainCarContiEnv(gym.Env):
         return np.sin(3 * xs) * 0.45 + 0.55
 
     def render(self, mode='human', close=False):
+        mode = self.render_mode
         if close:
             if self.viewer is not None:
                 self.viewer.close()

@@ -45,11 +45,14 @@ def show_pareto_front(args):
         )
 
     # Add titles, labels, and legend
-    plt.title(f"Pareto Front Visualization (Gen={args.gen})", fontsize=16)
-    plt.xlabel(f"MeanFit", fontsize=12)
-    plt.ylabel(f"1/#conns", fontsize=12)
-    plt.legend()
+    plt.title(f"Pareto Front Visualization (Gen={args.gen})", fontsize=22)
+    plt.xlabel(f"MeanFit", fontsize=20)
+    plt.ylabel(f"1/#conns", fontsize=20)
+    plt.xticks(fontsize=14)
+    plt.yticks(fontsize=14)
+    plt.legend(fontsize=14)
     plt.grid(True)
+    plt.savefig(args.savePath) if args.save else None
 
     # Show the plot
     plt.show()
@@ -67,5 +70,11 @@ if __name__ == "__main__":
 
     parser.add_argument('-n', '--nFronts', type=int,
                         help='number of pareto fronts to highlight', default=3)
+
+    parser.add_argument('-s', '--save', type=bool,
+                        help='save the fig?', default=False)
+
+    parser.add_argument('-p', '--savePath', type=str,
+                        help='path to save the fig to. Only active if -s is True', default='log/lula/lula_256_480_pareto.pdf')
 
     show_pareto_front(parser.parse_args())

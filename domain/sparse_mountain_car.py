@@ -72,7 +72,7 @@ class SparseMountainCarEnv(gym.Env):
         'video.frames_per_second': 30
     }
 
-    def __init__(self):
+    def __init__(self, render_mode="human", use_sparse_reward=True):
         self.min_position = -1.2
         self.max_position = 0.6
         self.max_speed = 0.07  # the cars velocity is clipped to [-max_speed, max_speed]
@@ -99,7 +99,8 @@ class SparseMountainCarEnv(gym.Env):
         self.state = None
         self.steps_taken = 0  # Initialize step counter
 
-        self.render_mode = "human"  # "rgb_array" or "human"
+        self.render_mode = render_mode  # "rgb_array" or "human"
+        self.use_sparse_reward = use_sparse_reward
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
@@ -127,11 +128,18 @@ class SparseMountainCarEnv(gym.Env):
         terminated = bool(
             position >= self.goal_position and velocity >= self.goal_velocity
         )
-        # Sparse reward: Only reward when terminated
-        if terminated:
-            reward = 100.0 * (0.99 ** self.steps_taken)  # Scale the reward by the time taken
+        if not self.use_sparse_reward:
+            # Use reward shaping for dense reward
+            if terminated:
+                reward = 100.0 * (0.99 ** self.steps_taken)
+            else:
+                reward = abs(velocity)  # if the car is fast, it probably reaches the goal eventually!
         else:
-            reward = 0.0
+            # Sparse reward: Only reward when terminated
+            if terminated:
+                reward = 100.0 * (0.99 ** self.steps_taken)  # Scale the reward by the time taken
+            else:
+                reward = 0.0
 
         # Stop the episode if the maximum number of steps is reached
         truncateds = False

@@ -47,24 +47,24 @@ def make_env(env_name, seed=-1, render_mode=False):
 
     # -- Sparse Mountain Car ------------------------------------------- -- #
     elif env_name.startswith("SparseMountainCar"):
-        render_mode = input("Choose Render Mode? (human, rgb_array, None): ")
-        use_sparse_reward = input("Use Sparse Reward? (0/1): ")
-        if render_mode not in ["human", "rgb_array", "None"]:
-            print(f"Render Mode {render_mode} not recognized. Using None.")
-            render_mode = None
-        if use_sparse_reward not in ["0", "1"]:
-            print(f"Use Sparse Reward {use_sparse_reward} not recognized. Using True.")
-            use_sparse_reward = True
-        elif use_sparse_reward == "0":
-            use_sparse_reward = False
-        else:
-            use_sparse_reward = True
+        #render_mode = input("Choose Render Mode? (human, rgb_array, None): ")
+        #use_sparse_reward = input("Use Sparse Reward? (0/1): ")
+        #if render_mode not in ["human", "rgb_array", "None"]:
+        #    print(f"Render Mode {render_mode} not recognized. Using None.")
+        #    render_mode = None
+        #if use_sparse_reward not in ["0", "1"]:
+        #    print(f"Use Sparse Reward {use_sparse_reward} not recognized. Using True.")
+        #    use_sparse_reward = True
+        #elif use_sparse_reward == "0":
+        #    use_sparse_reward = False
+        #else:
+        #    use_sparse_reward = True
         if env_name.startswith("SparseMountainCarConti"):
             from domain.sparse_mountain_car_conti import SparseMountainCarContiEnv
-            env = SparseMountainCarContiEnv(render_mode=render_mode, use_sparse_reward=use_sparse_reward)
+            env = SparseMountainCarContiEnv(render_mode=None, use_sparse_reward=True)
         else:
             from domain.sparse_mountain_car import SparseMountainCarEnv
-            env = SparseMountainCarEnv(render_mode=render_mode, use_sparse_reward=use_sparse_reward)
+            env = SparseMountainCarEnv(render_mode=None, use_sparse_reward=True)
 
     # -- Lunar Lander ------------------------------------------- -- #
     elif env_name.startswith("LunarLander"):

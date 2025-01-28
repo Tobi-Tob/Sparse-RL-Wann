@@ -5,6 +5,7 @@ import gym
 from gym import spaces
 from gym.utils import seeding
 from gym.envs.classic_control import utils
+from matplotlib import pyplot as plt
 
 
 class SparseMountainCarEnv(gym.Env):
@@ -270,3 +271,35 @@ class SparseMountainCarEnv(gym.Env):
             pygame.display.quit()
             pygame.quit()
             self.isopen = False
+
+    def visualize_model_policy(self, model, granularity=256, action_bins=None):
+        """
+        Plot the agent's behaviour strategy for different states in the discrete state space of the MountainCar environment.
+        See https://github.com/ZhiqingXiao/OpenAIGymSolution/blob/master/MountainCar-v0/mountaincar_v0_sarsa_lambda_tilecode.ipynb
+
+        :param model: The trained model to plot the policy of
+        :param granularity: The number of points to plot in the x and y-axis
+        """
+        poses = np.linspace(self.unwrapped.min_position, self.unwrapped.max_position, granularity)
+        vels = np.linspace(-self.unwrapped.max_speed, self.unwrapped.max_speed, granularity)
+        positions, velocities = np.meshgrid(poses, vels)
+
+        from wann_src import act, selectAct
+        wMat, aVec = model
+
+        @np.vectorize
+        def ask_policy(position, velocity):
+            annOut = act(weights=wMat, aVec=aVec, nInput=2, nOutput=3, inPattern=np.array([position, velocity]))
+            action = selectAct(annOut, 'flatten')
+            if isinstance(action, (list, np.ndarray)):
+                action = int(np.argmax(action))  # Convert to discrete action based on the highest value
+            return action
+
+        action_values = ask_policy(positions, velocities)
+
+        fig, ax = plt.subplots()
+        c = ax.pcolormesh(positions, velocities, action_values)
+        ax.set_xlabel('position')
+        ax.set_ylabel('velocity')
+        fig.colorbar(c, ax=ax, boundaries=[-.5, .5, 1.5, 2.5], ticks=[0, 1, 2])
+        return fig, ax

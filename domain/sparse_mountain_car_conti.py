@@ -1,13 +1,12 @@
 import math
 from typing import Optional
-
 import numpy as np
+from matplotlib import pyplot as plt
 
 import gym
 from gym import spaces
 from gym.utils import seeding
 from gym.envs.classic_control import utils
-from gym.error import DependencyNotInstalled
 
 
 class SparseMountainCarContiEnv(gym.Env):
@@ -265,3 +264,38 @@ class SparseMountainCarContiEnv(gym.Env):
             pygame.display.quit()
             pygame.quit()
             self.isopen = False
+
+    def visualize_model_policy(self, model, granularity=256, action_bins=20):
+        """
+        Visualize the policy for the continuous action space by discretizing the actions.
+
+        :param model: The trained model to plot the policy of
+        :param granularity: The number of points to plot in the x and y-axis
+        :param action_bins: Number of bins to discretize the action space
+        """
+        poses = np.linspace(self.min_position, self.max_position, granularity)
+        vels = np.linspace(-self.max_speed, self.max_speed, granularity)
+        positions, velocities = np.meshgrid(poses, vels)
+
+        from wann_src import act
+        wMat, aVec = model
+
+        @np.vectorize
+        def ask_policy(position, velocity):
+            annOut = act(weights=wMat, aVec=aVec, nInput=2, nOutput=1, inPattern=np.array([position, velocity]))
+            action = annOut[0]  # Output is continuous
+            return action
+
+        action_values = ask_policy(positions, velocities)
+
+        # Discretize the action values for visualization
+        discrete_actions = np.linspace(self.action_space.low[0], self.action_space.high[0], action_bins)
+        discrete_action_indices = np.digitize(action_values, discrete_actions) - 1
+        # np.digitize indices start at 1, so subtracting 1 converts the indices to be 0-based
+
+        fig, ax = plt.subplots()
+        c = ax.pcolormesh(positions, velocities, discrete_action_indices, cmap='viridis', shading='auto')
+        ax.set_xlabel('position')
+        ax.set_ylabel('velocity')
+        fig.colorbar(c, ax=ax, label='discretized action')
+        return fig, ax

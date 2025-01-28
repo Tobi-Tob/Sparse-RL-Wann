@@ -40,7 +40,9 @@ class Agent:
             np.linspace(-1.2, 0.6, num=(num_bins + 1))[1:-1],
             np.linspace(-0.07, 0.07, num=(num_bins + 1))[1:-1],
         ]
+        # MR: this creates the bins for the state space -> each value is the border between two bins
 
+        # MR: Q-Table can be visualized well
         # initialize the Q-table with zeros
         self.num_actions = 3
         num_states = self.num_bins ** len(self.discrete_states)
@@ -91,6 +93,7 @@ class Monitor:
 
         self.num_episodes = num_episodes
         self.rewards = np.zeros(num_episodes, dtype=float)
+        self.sparse_rewards = np.zeros(num_episodes, dtype=float)
         self.episode_plot = None
         self.avg_plot = None
         self.fig = None
@@ -99,8 +102,10 @@ class Monitor:
     def __getitem__(self, episode_index):
         return self.rewards[episode_index]
 
-    def __setitem__(self, episode_index, episode_reward):
+    def __setitem__(self, episode_index, value_tuple):
+        episode_reward, sparse_reward = value_tuple  # Unpack the tuple
         self.rewards[episode_index] = episode_reward
+        self.sparse_rewards[episode_index] = sparse_reward
 
     def create_plot(self):
         plt.style.use("ggplot")
@@ -144,11 +149,12 @@ def videos_to_record(episode_id):
     return episode_id in [1, 100, 500, 1000, 2000, 3500, 4900]
 
 
-def create_fig(x, y, filename=None):
+def create_fig(x, y1, y2, filename=None):
     plt.figure(figsize=(10, 8))
 
     # Plot all points
-    plt.plot(x, y, color="orange")
+    plt.plot(x, y1, color="orange", label="Total Reward")
+    plt.plot(x, y2, color="blue", label="Goal Reward", alpha=0.5)
 
     # Add titles, labels, and legend
     plt.title(f"Episode Reward History", fontsize=22)
@@ -156,6 +162,7 @@ def create_fig(x, y, filename=None):
     plt.ylabel(f"Total Reward", fontsize=20)
     plt.xticks(fontsize=14)
     plt.yticks(fontsize=14)
+    plt.legend(fontsize=14)
     plt.grid(True)
 
     plt.savefig(filename, bbox_inches='tight') if filename else None
@@ -167,7 +174,7 @@ def main():
     # parameters
     verbose = False
     seed = 42
-    working_dir = "../q-learning_logs/test"
+    working_dir = "../q-learning_logs/success"
     num_episodes = 5001
     plot_redraw_frequency = 10
 
@@ -211,6 +218,7 @@ def main():
         observation = env.reset()
         action = agent.start_episode(observation)
         total_reward = 0
+        sparse_reward = 0  # stores reward if goal was reached, no intermediate reward
         timestep = 0
         done = False
         stop = False
@@ -219,6 +227,8 @@ def main():
             # make an action and get the new observations
             observation, reward, done, stop, info = env.step(action)
             total_reward += reward
+            if reward > 5:
+                sparse_reward =+ reward
             timestep += 1
 
             if verbose:
@@ -234,16 +244,19 @@ def main():
               .format(episode_index + 1, timestep, total_reward))
 
         # update the plot
-        monitor[episode_index] = total_reward
+        monitor[episode_index] = total_reward, sparse_reward
         if verbose or episode_index % plot_redraw_frequency == 0:
             monitor.update_plot(episode_index)
 
     # save the history in a csv file
-    df = pd.DataFrame(monitor.rewards, columns=["reward"])
+    df = pd.DataFrame({
+        "reward": list(monitor.rewards),
+        "sparse_reward": list(monitor.sparse_rewards)
+    })
     df.to_csv(os.path.join(working_dir, "history.csv"), index_label="episode")
 
     # Create and save the plot
-    create_fig(df.index.to_list(), df['reward'].to_list(), os.path.join(working_dir, "history.pdf"))
+    create_fig(df.index.to_list(), df['reward'].to_list(), df['sparse_reward'].to_list(), os.path.join(working_dir, "history.pdf"))
 
     env.env.close()
 

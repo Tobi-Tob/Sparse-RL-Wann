@@ -129,11 +129,18 @@ class SparseMountainCarContiEnv(gym.Env):
         terminated = bool(
             position >= self.goal_position and velocity >= self.goal_velocity
         )
-        # Sparse reward: Only reward when terminated
-        if terminated:
-            reward = 100.0 * (0.99 ** self.steps_taken)  # Scale the reward by the time taken
+        if not self.use_sparse_reward:
+            # Use reward shaping for dense reward
+            if terminated:
+                reward = 100.0 * (0.99 ** self.steps_taken)
+            else:
+                reward = abs(velocity)  # if the car is fast, it probably reaches the goal eventually!
         else:
-            reward = 0.0
+            # Sparse reward: Only reward when terminated
+            if terminated:
+                reward = 100.0 * (0.99 ** self.steps_taken)  # Scale the reward by the time taken
+            else:
+                reward = 0.0
 
         # Stop the episode if the maximum number of steps is reached
         truncateds = False

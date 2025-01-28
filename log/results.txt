@@ -1,6 +1,7 @@
 This file stores the results for the project report:
 
 Sparse Mountain Car discrete version:
+1. WANN
 - verified the log/smc/smc_1024_best.out model with 5 runs of wann_test.py with 1000 nReps for 6 different weights:
 Weight Values:	 [-2.  -1.  -0.5  0.5  1.   2. ]
 Fitness Run 1: [28.7  29.1  28.67 28.56 29.13 28.23]
@@ -10,6 +11,10 @@ Fitness Run 4: [28.48 28.77 28.37 29.27 27.91 28.54]
 Fitness Run 5: [28.83 28.26 28.71 28.96 28.73 29.1 ]
 Average Fit.: [28.644 28.782 28.548 28.706 28.648 28.642]
 Standard Dev: [0.144 0.292 0.235 0.357 0.444 0.293]
+
+2. Q-Learning:
+- read the highest value beginning from 5000 episode (convergence against this value)
+Total Reward: 32.926
 
 Sparse Mountain Car continuous version:
 - verified the log/smc_conti/smc_conti_1024_best.out model with 5 runs of wann_test.py with 1000 nReps for 6 different weights:

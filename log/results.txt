@@ -1,6 +1,6 @@
 This file stores the results for the project report:
 
-Sparse Mountain Car discrete version:
+############## Sparse Mountain Car discrete version: #######################
 1. WANN
 - verified the log/smc/smc_1024_best.out model with 5 runs of wann_test.py with 1000 nReps for 6 different weights:
 Weight Values:	 [-2.  -1.  -0.5  0.5  1.   2. ]
@@ -11,12 +11,83 @@ Fitness Run 4: [28.48 28.77 28.37 29.27 27.91 28.54]
 Fitness Run 5: [28.83 28.26 28.71 28.96 28.73 29.1 ]
 Average Fit.: [28.644 28.782 28.548 28.706 28.648 28.642]
 Standard Dev: [0.144 0.292 0.235 0.357 0.444 0.293]
+- Umrechnung in Steps till success: steps = log_0.99 (fit / 100)
+Avg. Steps till success: [124.40 123.92 124.73 124.18 124.38 124.40]
 
 2. Q-Learning:
-- read the highest value beginning from 5000 episode (convergence against this value)
+- read the total and sparse reward value from 5000. episode
 Total Reward: 32.926
+Sparse Reward: 30.240
+Avg. Steps till success: 110.53
 
-Sparse Mountain Car continuous version:
+3. PPO:
+- read the total reward from 10 last timesteps (avg.) and subtract a representative number for the intermediate reward
+Total Reward: 28.7
+Sparse Reward: Total Reward - avg. intermediate reward = 28.7 - 2.5 = 26.2
+Avg. Steps till success: 133.27
+- results:
+------------------------------------------
+| eval/                   |              |
+|    mean_ep_length       | 139          |
+|    mean_reward          | 28.7         |
+| time/                   |              |
+|    total_timesteps      | 100000       |
+| train/                  |              |
+|    approx_kl            | 0.0068165436 |
+|    clip_fraction        | 0.0617       |
+|    clip_range           | 0.2          |
+|    entropy_loss         | -0.36        |
+|    explained_variance   | 0            |
+|    learning_rate        | 0.01         |
+|    loss                 | 4.4          |
+|    n_updates            | 9980         |
+|    policy_gradient_loss | -0.00515     |
+|    value_loss           | 17.9         |
+------------------------------------------
+
+4. A2C:
+- read the total reward from 10 last timesteps (avg.) and subtract a representative number for the intermediate reward
+Total Reward: 1.95
+Sparse Reward: 0.0
+Avg. Steps till success: 0
+- results:
+------------------------------------
+| eval/                 |          |
+|    mean_ep_length     | 200      |
+|    mean_reward        | 1.95     |
+| time/                 |          |
+|    total_timesteps    | 100000   |
+| train/                |          |
+|    entropy_loss       | -1.03    |
+|    explained_variance | 0        |
+|    learning_rate      | 0.001    |
+|    n_updates          | 19999    |
+|    policy_loss        | 0.00966  |
+|    value_loss         | 0.00014  |
+------------------------------------
+
+5. DQN:
+- read the total reward from 10 last timesteps (avg.) and subtract a representative number for the intermediate reward
+Total Reward: 6.4
+Sparse Reward: Total Reward - avg. intermediate reward = 6.4 - 2.5 = 3.9
+Avg. Steps till success: 322.79
+- results:
+----------------------------------
+| eval/               |          |
+|    mean_ep_length   | 190      |
+|    mean_reward      | 6.4      |
+| rollout/            |          |
+|    exploration_rate | 0.05     |
+| time/               |          |
+|    total_timesteps  | 100000   |
+| train/              |          |
+|    learning_rate    | 0.01     |
+|    loss             | 0.00467  |
+|    n_updates        | 22724    |
+----------------------------------
+
+############### Sparse Mountain Car continuous version: #######################
+1. WANN:
 - verified the log/smc_conti/smc_conti_1024_best.out model with 5 runs of wann_test.py with 1000 nReps for 6 different weights:
 Weight Values:	 [-2.  -1.  -0.5  0.5  1.   2. ]
 Fitness Run 1: [33.33 33.3  30.02 33.65 34.22 31.97]
@@ -26,8 +97,66 @@ Fitness Run 4: [32.95 33.69 30.08 33.3  34.4  31.45]
 Fitness Run 5: [33.35 33.29 30.07 33.44 34.22 31.88]
 Average Fit.: [33.198 33.402 30.058 33.462 34.208 31.762]
 Standard Dev: [0.148 0.192 0.021 0.120 0.145 0.193]
+- Umrechnung in Steps till success: steps = log_0.99 (fit / 100)
+Avg. Steps till success: [109.72 109.11 119.60 108.93 106.73 114.12]
 
-Lunar Lander discrete version:
+2. Q-Learning:
+- read the total and sparse reward value from 5000. episode
+Total Reward: 0.8?
+Sparse Reward: 0.0
+
+3. PPO:
+- read the total reward from 10 last timesteps (avg.) and subtract a representative number for the intermediate reward
+Total Reward: 13.0
+Sparse Reward: Total Reward - avg. intermediate reward = 13.0 - 2.5 = 10.5
+Avg. Steps till success: 224.25
+- results:
+----------------------------------------
+| eval/                   |            |
+|    mean_ep_length       | 180        |
+|    mean_reward          | 13         |
+| time/                   |            |
+|    total_timesteps      | 100000     |
+| train/                  |            |
+|    approx_kl            | 0.12563753 |
+|    clip_fraction        | 0.305      |
+|    clip_range           | 0.2        |
+|    entropy_loss         | 1.61       |
+|    explained_variance   | -4.4       |
+|    learning_rate        | 0.01       |
+|    loss                 | 0.352      |
+|    n_updates            | 9980       |
+|    policy_gradient_loss | 0.021      |
+|    std                  | 0.0487     |
+|    value_loss           | 3.68       |
+----------------------------------------
+
+4. A2C:
+- read the total reward from 10 last timesteps (avg.) and subtract a representative number for the intermediate reward
+Total Reward: 1.44
+Sparse Reward: 0.0
+Avg. Steps till success: 0
+- results:
+------------------------------------
+| eval/                 |          |
+|    mean_ep_length     | 200      |
+|    mean_reward        | 1.44     |
+| time/                 |          |
+|    total_timesteps    | 100000   |
+| train/                |          |
+|    entropy_loss       | -0.967   |
+|    explained_variance | -0.102   |
+|    learning_rate      | 0.001    |
+|    n_updates          | 19999    |
+|    policy_loss        | -0.0165  |
+|    std                | 0.637    |
+|    value_loss         | 0.00073  |
+------------------------------------
+
+5. DQN: No continuous action space supported!
+
+#################### Lunar Lander discrete version: #######################
+1. WANN:
 - verified the log/lula/lula_256_480_best.out model with 5 runs of wann_test.py with 1000 nReps for 6 different weights:
 Weight Values:	 [-2.  -1.  -0.5  0.5  1.   2. ]
 Fitness Run 1: [31.49 32.4  31.36  0.    0.    0.  ]
@@ -37,3 +166,29 @@ Fitness Run 4: [33.16 31.59 30.55  0.    0.    0.  ]
 Fitness Run 5: [31.95 31.82 30.75  0.    0.    0.  ]
 Average Fit.: [32.112 31.390 29.892  0.     0.     0.   ]
 Standard Dev: [1.035 1.166 1.356 0.     0.     0.   ]
+- Umrechnung in Steps till success: steps = log_0.999 (fit / 100)
+Avg. Steps till success: [1135.37 1158.10 1178.69 0 0 0]
+
+2. Q-Learning:
+- read the total and sparse reward value from 5000. episode
+Total Reward:
+Sparse Reward:
+
+3. PPO:
+- read the total reward from 10 last timesteps (avg.) and subtract a representative number for the intermediate reward
+Total Reward: 28.7
+Sparse Reward: Total Reward - avg. intermediate reward =  =
+- results:
+
+4. A2C:
+- read the total reward from 10 last timesteps (avg.) and subtract a representative number for the intermediate reward
+Total Reward:
+Sparse Reward: Total Reward - avg. intermediate reward =  =
+- results:
+
+
+5. DQN:
+- read the total reward from 10 last timesteps (avg.) and subtract a representative number for the intermediate reward
+Total Reward:
+Sparse Reward: Total Reward - avg. intermediate reward =  =
+- results:

@@ -298,8 +298,13 @@ class SparseMountainCarEnv(gym.Env):
         action_values = ask_policy(positions, velocities)
 
         fig, ax = plt.subplots()
+        plt.title("Policy Visualization", fontsize=20)
         c = ax.pcolormesh(positions, velocities, action_values)
-        ax.set_xlabel('position')
-        ax.set_ylabel('velocity')
-        fig.colorbar(c, ax=ax, boundaries=[-.5, .5, 1.5, 2.5], ticks=[0, 1, 2])
+        ax.set_xlabel('position', fontsize=18)
+        ax.set_ylabel('velocity', fontsize=18)
+        plt.xticks(fontsize=14)
+        plt.yticks(fontsize=14)
+        cbar = fig.colorbar(c, ax=ax, boundaries=[-.5, .5, 1.5, 2.5], ticks=[0, 1, 2])
+        # cbar.set_label('discretized action', fontsize=14)
+        cbar.ax.tick_params(labelsize=14)
         return fig, ax

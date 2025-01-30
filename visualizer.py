@@ -19,7 +19,7 @@ def visualize(args):
     # Visualize the network graph
     fig, ax = viewInd(ind=args.input, taskName=task_name)
     fig.show()
-    fig.savefig(f'{args.input.split(".")[0]}.pdf')
+    fig.savefig(f'{args.input.split(".")[0]}.pdf', bbox_inches='tight')
 
     # If the task is mountain_car, also generate the policy visualization
     if args.task == 'SparseMountainCar' or 'SparseMountainCarConti':
@@ -42,17 +42,19 @@ def visualize(args):
         # Generate the policy visualization
         print(f"Generating policy visualization for {args.task}...")
         color_mesh_fig, color_mesh_ax = env.visualize_model_policy(model=(wMat, aVec), granularity=granularity, action_bins=action_bins)
-        color_mesh_fig.savefig(f'{args.input.split(".")[0]}_Policy.png')
+        color_mesh_fig.show()
+        color_mesh_fig.savefig(f'{args.input.split(".")[0]}_Policy.pdf', bbox_inches='tight')
 
 
 if __name__ == "__main__":
     # python visualizer.py -i log/test_best.out -t sparse_mountain_car
+    # take log/smc_conti/smc_conti_1024_best/0032.out (has 14 connections)
     parser = argparse.ArgumentParser(description='Visualize evolved network graphs')
 
     parser.add_argument('-i', '--input', type=str,
-                        help='Input model architecture', default='log/smc_best.out')
+                        help='Input model architecture', default='log/smc_conti/smc_conti_1024_best/0032.out')
 
     parser.add_argument("-t", "--task", type=str,
-                        help="Task to use (SparseMountainCar, SparseMountainCarConti)", default="SparseMountainCar")
+                        help="Task to use (SparseMountainCar, SparseMountainCarConti)", default="SparseMountainCarConti")
 
     visualize(parser.parse_args())

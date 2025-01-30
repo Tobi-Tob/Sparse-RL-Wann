@@ -427,7 +427,7 @@ class LunarLanderEnv(gym.Env, EzPickle):
 
         if self.render_mode == "human":
             self.render()
-        return self.step(np.array([0, 0]) if self.continuous else 0)[0]  # , {}
+        return self.step(np.array([0, 0]) if self.continuous else 0)[0], {}  # MR: needed to activate second arg for RL Algos
 
     def _create_particle(self, mass, x, y, ttl):
         p = self.world.CreateDynamicBody(

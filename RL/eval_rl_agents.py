@@ -7,9 +7,8 @@ from domain.make_env import make_env
 
 def evaluate_agent(args):
     algo = args.algo
-    task = args.task
     saved_dir = args.saved
-    episodes = 1
+    episodes = 10
     visualize = True
 
     # Initialize the environment

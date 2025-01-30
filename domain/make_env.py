@@ -61,7 +61,7 @@ def make_env(env_name, seed=-1, render_mode=False):
         #    use_sparse_reward = True
         if env_name.startswith("SparseMountainCarConti"):
             from domain.sparse_mountain_car_conti import SparseMountainCarContiEnv
-            env = SparseMountainCarContiEnv(render_mode=None, use_sparse_reward=True)
+            env = SparseMountainCarContiEnv(render_mode="rgb_array", use_sparse_reward=False)
         else:
             from domain.sparse_mountain_car import SparseMountainCarEnv
             env = SparseMountainCarEnv(render_mode=None, use_sparse_reward=True)

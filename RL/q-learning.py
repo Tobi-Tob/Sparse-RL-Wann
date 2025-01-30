@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from domain.make_env import make_env
+import argparse
 
 from gym.wrappers import RecordVideo
 
@@ -22,7 +23,8 @@ class Agent:
                  gamma,
                  epsilon,
                  epsilon_decay_rate,
-                 num_bins):
+                 num_bins,
+                 num_actions=3):
 
         self.lr = lr_init
         self.lr_min = lr_min
@@ -44,7 +46,7 @@ class Agent:
 
         # MR: Q-Table can be visualized well
         # initialize the Q-table with zeros
-        self.num_actions = 3
+        self.num_actions = num_actions
         num_states = self.num_bins ** len(self.discrete_states)
         self.q = np.zeros(shape=(num_states, self.num_actions))
         print("Q-table shape (number_states, number_actions):", self.q.shape)
@@ -65,25 +67,36 @@ class Agent:
 
         # return the first action of the episode
         self.state = self.to_state(observation)
-        return np.argmax(self.q[self.state])
+        return np.argmax(self.q[self.state]) if self.num_actions > 1 else np.float32(self.q[self.state])
 
     def make_action(self, observation, reward):
         next_state = self.to_state(observation)
 
         if (1 - self.epsilon) <= np.random.uniform():
             # make a random action to explore
-            next_action = np.random.randint(0, self.num_actions)
+            if self.num_actions > 1:  # discrete actions
+                next_action = np.random.randint(0, self.num_actions)
+            else:  # continuous actions
+                next_action = np.float32(np.random.uniform(-1.0, 1.0))
         else:
             # take the best action
-            next_action = np.argmax(self.q[next_state])
+            if self.num_actions > 1:  # discrete actions
+                next_action = np.argmax(self.q[next_state])
+            else:  # continuous actions
+                next_action = np.float32(self.q[next_state])
 
         # update the Q-table
-        self.q[self.state, self.action] += self.lr * \
-            (reward + self.gamma * np.max(self.q[next_state, :]) -
-             self.q[self.state, self.action])
+        if self.num_actions > 1:  # discrete actions
+            self.q[self.state, self.action] += self.lr * \
+                  (reward + self.gamma * np.max(self.q[next_state, :]) -
+                   self.q[self.state, self.action])
+        else:  # continuous actions
+            self.q[self.state] += self.lr * \
+                   (reward + self.gamma * np.max(self.q[next_state]) -
+                    self.q[self.state])
 
         self.state = next_state
-        self.action = next_action
+        self.action = next_action  # Only necessary for discrete action space
         return next_action
 
 
@@ -169,25 +182,29 @@ def create_fig(x, y1, y2, filename=None):
     plt.show()
 
 
-def main():
-
+def main(args):
     # parameters
     verbose = False
     seed = 42
-    working_dir = "../q-learning_logs/success"
-    num_episodes = 5001
+    num_episodes = args.episodes
     plot_redraw_frequency = 10
 
     # create the environment
-    env = make_env("SparseMountainCar")
+    env = make_env(args.task)
 
     # set seed to reproduce the same results
     env.seed(seed)
     np.random.seed(seed)
 
     # monitor the training
-    env = RecordVideo(env, video_folder=working_dir, episode_trigger=videos_to_record)
+    env = RecordVideo(env, video_folder=args.outdir, episode_trigger=videos_to_record)
 
+    if "Conti" in args.task:
+        num_actions = 1
+    elif "LunarLander" in args.task:
+        num_actions = 4
+    else:  # SparseMountainCar
+        num_actions = 3
     agent = Agent(
         lr_init=0.8,
         lr_min=1e-5,
@@ -196,6 +213,7 @@ def main():
         epsilon=1.0,  # 0.9,
         epsilon_decay_rate=3e-3,  # 5e-3,
         num_bins=4,  # 15
+        num_actions=num_actions,
     )
 
     '''
@@ -253,13 +271,23 @@ def main():
         "reward": list(monitor.rewards),
         "sparse_reward": list(monitor.sparse_rewards)
     })
-    df.to_csv(os.path.join(working_dir, "history.csv"), index_label="episode")
+    df.to_csv(os.path.join(args.outdir, "history.csv"), index_label="episode")
 
     # Create and save the plot
-    create_fig(df.index.to_list(), df['reward'].to_list(), df['sparse_reward'].to_list(), os.path.join(working_dir, "history.pdf"))
+    create_fig(df.index.to_list(), df['reward'].to_list(), df['sparse_reward'].to_list(), os.path.join(args.outdir, "history.pdf"))
 
     env.env.close()
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Train RL Agent")
+
+    parser.add_argument("-t", "--task", type=str,
+                        help="Task to use (SparseMountainCar, SparseMountainCarConti, LunarLander)", default="LunarLander")
+    parser.add_argument("-o", "--outdir", type=str, help="Directory to save the logs", default="q-learning_logs/lula")
+    parser.add_argument("-e", "--episodes", type=int, help="Number of Episodes", default=5001)
+
+    args = parser.parse_args()
+    os.makedirs(args.outdir, exist_ok=True)
+
+    main(args)

@@ -28,7 +28,7 @@ def show_pareto_front(args):
     plt.figure(figsize=(10, 8))
 
     # Plot all points
-    plt.scatter(objVals[:, 0], objVals[:, 1], label="All Points", alpha=0.5, color="gray")
+    plt.scatter(objVals[:, 0], objVals[:, 1], label="All Individuals", alpha=0.7, color="blue", s=70)
 
     # Highlight the first Pareto fronts with a unique color
     colors = ["red", "orange", "green"]
@@ -39,21 +39,22 @@ def show_pareto_front(args):
             front_points[:, 0],
             front_points[:, 1],
             color=colors[i % len(colors)],
-            alpha=0.5,
+            alpha=0.9,
             label=f"Pareto Front {i + 1}",
-            # edgecolor="black",
-            # s=100
+            edgecolor="black",
+            s=130
         )
 
     # Add titles, labels, and legend
-    plt.title(f"Pareto Front Visualization (Gen={args.gen})", fontsize=22)
+    # plt.title(f"Pareto Front Visualization (Gen={args.gen})", fontsize=22)
+    plt.title(f"Pareto Front Visualization", fontsize=22)
     plt.xlabel(f"MeanFit", fontsize=20)
-    plt.ylabel(f"1/#conns", fontsize=20)
+    plt.ylabel(f"#conns", fontsize=20)
     plt.xticks(fontsize=14)
     plt.yticks(fontsize=14)
     plt.legend(fontsize=14)
     plt.grid(True)
-    plt.savefig(args.savePath) if args.save else None
+    plt.savefig(args.savePath, bbox_inches='tight') if args.save else None
 
     # Show the plot
     plt.show()
@@ -61,13 +62,15 @@ def show_pareto_front(args):
 
 if __name__ == "__main__":
     # python pareto_front.py -i log/lula/lula_256_480_objVals.out -g 255 -n 3
+    # Gen 40 für smc_conti_1024 -> sinnvoller Plot  log/smc_conti/smc_conti_1024_objVals.out
+    # Gen 80 für smc_1024 -> sinnvoller Plot  log/smc/smc_1024_objVals.out
     parser = argparse.ArgumentParser(description='Visualize MOO Pareto Fronts')
 
     parser.add_argument('-i', '--input', type=str,
-                        help='input objective values', default='log/lula/lula_256_480_objVals.out')
+                        help='input objective values', default='log/smc/smc_1024_objVals.out')
 
     parser.add_argument('-g', '--gen', type=int,
-                        help='generation of the population', default=255)
+                        help='generation of the population', default=80)
 
     parser.add_argument('-n', '--nFronts', type=int,
                         help='number of pareto fronts to highlight', default=1)
@@ -76,6 +79,6 @@ if __name__ == "__main__":
                         help='save the fig?', default=True)
 
     parser.add_argument('-p', '--savePath', type=str,
-                        help='path to save the fig to. Only active if -s is True', default='log/lula/lula_256_480_pareto.pdf')
+                        help='path to save the fig to. Only active if -s is True', default='log/smc/smc_1024_pareto_gen80_v2.pdf')
 
     show_pareto_front(parser.parse_args())

@@ -110,8 +110,9 @@ class SparseMountainCarContiEnv(gym.Env):
 
     def step(self, action):
         # Ensure the action is of type float32 and valid
-        action = np.array(action, dtype=np.float32)
+        # action = np.array(action, dtype=np.float32)
         action = np.clip(action, -1.0, 1.0)
+        action = np.array(action, dtype=np.float32).reshape(self.action_space.shape)
         assert self.action_space.contains(
             action
         ), f"Action {action!r} ({type(action)}) is invalid, must be in {self.action_space}"
@@ -297,12 +298,18 @@ class SparseMountainCarContiEnv(gym.Env):
 
         # Discretize the action values for visualization
         discrete_actions = np.linspace(self.action_space.low[0], self.action_space.high[0], action_bins)
-        discrete_action_indices = np.digitize(action_values, discrete_actions) - 1
+        print("discrete_actions: ", discrete_actions)
+        discrete_action_indices = 0.1 * (np.digitize(action_values, discrete_actions) - 10)
+        print("discrete_action_indices: ", discrete_action_indices)
         # np.digitize indices start at 1, so subtracting 1 converts the indices to be 0-based
 
         fig, ax = plt.subplots()
+        plt.title("Policy Visualization", fontsize=22)
         c = ax.pcolormesh(positions, velocities, discrete_action_indices, cmap='viridis', shading='auto')
-        ax.set_xlabel('position')
-        ax.set_ylabel('velocity')
-        fig.colorbar(c, ax=ax, label='discretized action')
+        ax.set_xlabel('position', fontsize=18)
+        ax.set_ylabel('velocity', fontsize=18)
+        plt.xticks(fontsize=14)
+        plt.yticks(fontsize=14)
+        cbar = fig.colorbar(c, ax=ax)  # , label='discretized action'
+        cbar.ax.tick_params(labelsize=14)
         return fig, ax

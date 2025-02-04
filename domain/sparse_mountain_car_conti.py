@@ -305,7 +305,7 @@ class SparseMountainCarContiEnv(gym.Env):
 
         fig, ax = plt.subplots()
         plt.title("Policy Visualization", fontsize=22)
-        c = ax.pcolormesh(positions, velocities, discrete_action_indices, cmap='viridis', shading='auto')
+        c = ax.pcolormesh(positions, velocities, discrete_action_indices, cmap='viridis', shading='auto', vmin=-1, vmax=1)
         ax.set_xlabel('position', fontsize=18)
         ax.set_ylabel('velocity', fontsize=18)
         plt.xticks(fontsize=14)

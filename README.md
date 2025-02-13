@@ -1,89 +1,96 @@
-This repository contains the code used to produce the results in the original [WANN paper](https://github.com/google/brain-tokyo-workshop/).
+# Exploring Sparse Reward Environments with Weight Agnostic Neural Networks
 
-# Weight Agnostic Neural Networks
+![Python](https://img.shields.io/badge/python-3.8-green.svg)
 
-Weight Agnostic Networks: network topologies evolved to work with a variety of shared weights. Adapted from the [prettyNEAT](../prettyNEAT) package. This repository represents a snapshot of the code used to produce the results in the original [WANN paper](https://weightagnostic.github.io/). The goal was to create minimal rather than general code for clearer understanding. If you are interested in a more extendable and general implementation for your own experiments, we recommend using the [WANN fork](../prettyNEAT_WANN) of the [prettyNEAT](../prettyNEAT) package.
+## 🚀 Overview
+Sparse reward environments present a significant challenge in reinforcement learning (RL), as agents receive little to no feedback for extended periods, making effective learning difficult. Traditional RL algorithms struggle in these settings without human-engineered feedback to guide training.
 
-## Dependencies
+### **Why Sparse Rewards Matter?**
+Many real-world RL applications provide only sparse rewards, requiring the algorithm to find a "needle in the haystack" solution. Challenges include:
+- **Delayed Feedback:** Agents receive rewards only upon completing a task, making it hard to assign credit.
+- **Exploration Difficulty:** Standard RL approaches struggle to find rare trajectories that lead to rewards without guidance.
 
-Core algorithm tested with:
+<p align="center">
+  <img src="img/sparse_landscape.png" alt="Sparse Optimization Landscape" width="500">
+</p>
 
-- Python 3.5.3
+### **Our Approach: WANNs for Sparse RL**
+We explore a novel direction using **Weight Agnostic Neural Networks (WANNs)**, which leverage evolutionary search to discover network architectures for solving such tasks.
 
-- NumPy 1.15.2 (`pip install numpy`)
+We evaluate WANNs on modified versions of the **MountainCar** and **LunarLander** environments, where rewards are only given upon successful task completion. Our results demonstrate that WANNs can successfully learn compact, interpretable policies in these settings, whereas conventional RL methods fail without reward shaping!
 
-- mpi4py 3.0.1 (`pip install mpi4py`)
+---
+## 📊 Results
+### **Discovered WANN Network and Policy**
+Example solution: the best WANN model for the discrete Sparse Mountain Car (SMC) task learns an effective and interpretable policy:
 
-- OpenAI Gym 0.9.6 (`pip install gym` -- installation details [here](https://github.com/openai/gym))
+<p align="center">
+  <img src="img/example_solution.png" alt="WANN Network, Policy Visualization, MountainCar Task" width="400">
+</p>
 
+### **Performance Comparison**
+| Method     | SMC Discrete | SMC Continuous | Lunar Lander |
+|------------|-------------|----------------|--------------|
+| **WANN**   | **123.92**  | **136.73**     | **1135.37**  |
+| Q-Learning | ∞ (110.53)  | ∞ (∞)          | ∞            |
+| PPO        | ∞ (133.27)  | ∞ (224.25)     | ∞            |
+| DQN        | ∞ (322.79)  | ✗              | ∞            |
 
-Domains tested with:
-
-- Cart-pole Swing-up (included, but requires OpenAI gym)
-
-- Bipedal Walker: Box2d (see OpenAI gym installation)
-
-- Quadruped (Ant) Walker: PyBullet 1.6.3 (`pip install pybullet`)
-
-- MNIST: Mnist utilities 0.2.2 (`pip install mnist`)
-
-- VAE Racer: 
-    - Tensorflow 1.8 (`pip install tensorflow==1.8.0`)
-    - Pretrained VAE (in [wannRelease](../) -- copy to root to use, e.g: `cp -r ../vae .`)
-
-
-
-## Training Weight Agnostic Neural Networks
-
-To get started and see that everything is set up you can test the swing up domain:
-
-```
-python wann_train.py
-```
-
-which is the same as the default hyperparameter:
-
-```
-python wann_train.py -p p/laptop_swing.json -n 8
-```
-
-Where `8` is the number of workers you have on your computer, and `p/laptop_swing.json` contains hyperparameters.
-
-Evaluation of the population is embarrassingly parallel so every extra core you have will really speed things up. Here is an example training curve on cart-pole with a population of 64 on an 8 core laptop:
-
-![alt text](log/wann_run.png)
-
-Where `Fitness` is the mean reward earned over all trials and weight values. `Median Fitness` is the fitness of the median performing member of the population, `Max Fitness` is the fitness of the best performing member of the population, `Top Fitness` is the best performing member ever found. `Peak Fitness` is the mean reward earned by the best performing member with its best performing weight value. To reproduce this graph see this [jupyter notebook](log/viewRunStats.ipynb).
-
-The full list of hyperparameters and their meaning is explained in [hypkey.txt](p/hypkey.txt)
-
-## Testing and Tuning Weight Agnostic Neural Networks
-
-To view or test a WANN:
-
-```
-python wann_test.py -p p/swingup.json -i champions/swing.out --nReps 3 --view True
-```
-
-WANNs are saved as 2D numpy arrays and can be retested, train, and viewed using the [WANNTool](../WANNTool) provided.
+*Average time steps to reach the goal;∞ denotes failure to reach the goal; values in parentheses indicate performance with reward shaping applied.*
 
 ---
 
-### Citation
-For attribution in academic contexts, please cite this work as
+## 📌 Key Takeaways
+✅ **WANNs succeed where standard RL fails** in sparse environments.  
+✅ **No reward shaping required**, reducing manual effort.  
+✅ **Compact, interpretable networks** discovered via evolutionary search.  
 
+---
+## 📂 Directory Structure
 ```
-@article{wann2019,
-  author = {Adam Gaier and David Ha},  
-  title  = {Weight Agnostic Neural Networks},  
-  eprint = {arXiv:1906.04358},  
-  url    = {https://weightagnostic.github.io},  
-  note   = "\url{https://weightagnostic.github.io}",  
-  year   = {2019}  
-}
+.
+├── wann_train.py        # Evolutionary search for networks solving the task
+├── wann_test.py         # Evaluation and visualization of trained WANNs
+├── visualizer.py        # Network structure and policy visualization tool
+├── pareto_front.py      # Displays the Pareto front (fitness vs. complexity)
+├── Sparse-RL-WANN.pdf   # Project report summary
+│
+├── wann_src/            # Helper functions for WANN EA process
+├── p/                   # JSON config files for experiment parameters
+├── domain/              # Task environments
+├── champions/           # Best evolved models stored here
+├── RL/                  # PPO, DQN, and Q-Learning implementations
+│
+└── requirements.txt      # Required dependencies
 ```
 
-## Disclaimer
+---
 
-This is not an official Google product.
+## 🛠 Installation
+Clone this repository and install dependencies:
+```bash
+git clone https://github.com/Tobi-Tob/Sparse-RL-Wann.git
+cd Sparse-RL-Wann
+pip install -r requirements.txt
+```
 
+---
+
+## 🏃 Running Experiments
+### 1️⃣ Train a WANN
+Run evolutionary search to discover a weight-agnostic network for a given environment:
+```bash
+python wann_train.py
+```
+
+### 2️⃣ Test and Visualize WANN Policies
+Evaluate a trained WANN model on an environment:
+```bash
+python wann_test.py
+```
+Visualize the discovered network structure and policy decisions:
+```bash
+python visualizer.py
+```
+
+This project builds on the original WANN framework from [Google Brain Tokyo Workshop](https://github.com/google/brain-tokyo-workshop/tree/master/WANNRelease).

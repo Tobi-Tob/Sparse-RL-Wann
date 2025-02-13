@@ -25,10 +25,7 @@ We evaluate WANNs on modified versions of the **MountainCar** and **LunarLander*
 Example solution: the best WANN model for the discrete Sparse Mountain Car (SMC) task learns an effective and interpretable policy:
 
 <p align="center">
-  <img src="images/wann_network.png" alt="WANN Network" width="400">
-  <img src="images/policy_visualization.png" alt="Policy Visualization" width="400">
-  <img src="images/pareto_front.png" alt="Pareto Front" width="400">
-  <img src="images/mountaincar_task.png" alt="MountainCar Task" width="400">
+  <img src="img/example_solution.png" alt="WANN Network, Policy Visualization, MountainCar Task" width="400">
 </p>
 
 ### **Performance Comparison**

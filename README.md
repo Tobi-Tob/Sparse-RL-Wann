@@ -11,7 +11,7 @@ Many real-world RL applications provide only sparse rewards, requiring the algor
 - **Exploration Difficulty:** Standard RL approaches struggle to find rare trajectories that lead to rewards without guidance.
 
 <p align="center">
-  <img src="img/sparse_landscape.png" alt="Sparse Optimization Landscape" width="500">
+  <img src="img/sparse_landscape.png" alt="Sparse Optimization Landscape" width="400">
 </p>
 
 ### **Our Approach: WANNs for Sparse RL**
@@ -25,7 +25,7 @@ We evaluate WANNs on modified versions of the **MountainCar** and **LunarLander*
 Example solution: the best WANN model for the discrete Sparse Mountain Car (SMC) task learns an effective and interpretable policy:
 
 <p align="center">
-  <img src="img/example_solution.png" alt="WANN Network, Policy Visualization, MountainCar Task" width="400">
+  <img src="img/example_solution.png" alt="WANN Network, Policy Visualization, MountainCar Task" width="1200">
 </p>
 
 ### **Performance Comparison**
